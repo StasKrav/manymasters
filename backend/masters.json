@@ -1,17 +1,69 @@
 [
   {
-    "id": "master_1766315226110",
-    "name": "Stas",
+    "id": "master_1766322085343",
+    "name": "Станислав",
     "phone": "79954801080",
     "categories": [
       "Другое"
     ],
-    "services": "massage",
-    "description": "norm",
+    "services": "массаж",
+    "description": "",
     "price": 0,
     "status": "active",
-    "createdAt": "2025-12-21T11:07:06.110Z",
-    "updatedAt": "2025-12-21T11:07:06.110Z",
+    "createdAt": "2025-12-21T13:01:25.343Z",
+    "updatedAt": "2025-12-21T13:01:25.343Z",
+    "subscription": {
+      "plan": "free",
+      "status": "active",
+      "expiresAt": null,
+      "isTrial": true
+    },
+    "stats": {
+      "views": 0,
+      "calls": 0,
+      "rating": 0,
+      "completedOrders": 0
+    }
+  },
+  {
+    "id": "master_1766322172328",
+    "name": "Кравченко",
+    "phone": "7912001010",
+    "categories": [
+      "Электрика"
+    ],
+    "services": "электрик",
+    "description": "",
+    "price": 0,
+    "status": "active",
+    "createdAt": "2025-12-21T13:02:52.328Z",
+    "updatedAt": "2025-12-21T13:02:52.328Z",
+    "subscription": {
+      "plan": "free",
+      "status": "active",
+      "expiresAt": null,
+      "isTrial": true
+    },
+    "stats": {
+      "views": 0,
+      "calls": 0,
+      "rating": 0,
+      "completedOrders": 0
+    }
+  },
+  {
+    "id": "master_1766322683629",
+    "name": "Стас",
+    "phone": "79954801010",
+    "categories": [
+      "Сантехника"
+    ],
+    "services": "сантех",
+    "description": "",
+    "price": 1000,
+    "status": "active",
+    "createdAt": "2025-12-21T13:11:23.629Z",
+    "updatedAt": "2025-12-21T13:11:23.629Z",
     "subscription": {
       "plan": "free",
       "status": "active",

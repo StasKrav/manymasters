@@ -290,6 +290,10 @@
                                                     <i class="fas fa-ban"></i> Деактивировать
                                                 </button>` : ''
                                             }
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMaster('${master.id}', '${master.name}')"
+                                                    style="margin-left: 0.5rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                             <button class="btn btn-sm" onclick="viewMaster('${master.id}')" 
                                                     style="background: #3b82f6; color: white;">
                                                 <i class="fas fa-eye"></i>
@@ -351,6 +355,34 @@
                 
             } catch (error) {
                 alert('Ошибка: ' + error.message);
+            }
+        }
+
+        // Удаление мастера
+        async function deleteMaster(masterId, masterName) {
+            if (!confirm(`УДАЛИТЬ мастера "${masterName}"?\nЭто действие нельзя отменить!`)) return;
+            
+            if (!confirm(`Точно удалить? Все данные мастера будут потеряны.`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/masters/${masterId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Ошибка сервера');
+                }
+                
+                const result = await response.json();
+                alert(`🗑️ ${result.message}`);
+                
+                // Обновляем данные
+                loadMasters();
+                loadStats();
+                
+            } catch (error) {
+                alert(`❌ Ошибка удаления: ${error.message}`);
             }
         }
         

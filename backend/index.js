@@ -293,6 +293,40 @@ app.post('/api/masters/:id/deactivate', async (req, res) => {
   }
 });
 
+// API: Удаление мастера (опционально)
+app.delete('/api/masters/:id', async (req, res) => {
+  try {
+    const masters = await readMasters();
+    const masterIndex = masters.findIndex(m => m.id === req.params.id);
+    
+    if (masterIndex === -1) {
+      return res.status(404).json({ error: 'Мастер не найден' });
+    }
+    
+    const deletedMaster = masters[masterIndex];
+    
+    // Удаляем мастера
+    masters.splice(masterIndex, 1);
+    
+    await writeMasters(masters);
+    
+    // Обновляем фронтенд
+    await updateServicesJS();
+    
+    res.json({
+      success: true,
+      message: 'Мастер удален',
+      master: deletedMaster
+    });
+    
+    console.log(`🗑️ Мастер удален: ${deletedMaster.name}`);
+    
+  } catch (error) {
+    console.error('Ошибка удаления мастера:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Получение списка мастеров (для админки)
 app.get('/api/masters', async (req, res) => {
   try {
