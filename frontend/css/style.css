@@ -739,3 +739,96 @@ body {
 .mt-2 {
     margin-top: 0.5rem;
 }
+
+/* ===== НОВЫЕ СТИЛИ ДЛЯ КАРТОЧЕК ===== */
+
+/* Кружок с инициалами */
+.master-avatar {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+}
+
+/* Имя мастера */
+.service-card__name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+/* Вид услуги */
+.service-card__service {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+/* Рейтинг */
+.service-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.service-card__rating i {
+    color: #fbbf24; /* желтый для звезд */
+    font-size: 0.9rem;
+}
+
+.service-card__rating .fa-star-half-alt {
+    color: #fbbf24;
+}
+
+.reviews-count {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Цена */
+.service-card__price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #10b981; /* зеленый */
+    text-align: right;
+    white-space: nowrap;
+    margin-left: auto;
+    padding-left: 1rem;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .master-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1rem;
+    }
+    
+    .service-card__name {
+        font-size: 1rem;
+    }
+    
+    .service-card__service {
+        font-size: 0.9rem;
+    }
+    
+    .service-card__price {
+        font-size: 1.125rem;
+    }
+    
+    .service-card__rating i {
+        font-size: 0.8rem;
+    }
+}

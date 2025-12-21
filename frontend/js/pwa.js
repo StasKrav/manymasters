@@ -1,20 +1,19 @@
-// Инициализация PWA
+// frontend/js/pwa.js
 export function initPWA() {
     console.log('PWA module initialized');
     
-    // Регистрация Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('Service Worker зарегистрирован:', registration);
-            })
-            .catch(error => {
-                console.log('Ошибка регистрации Service Worker:', error);
-            });
+    // ВРЕМЕННО ОТКЛЮЧАЕМ SERVICE WORKER
+    console.log('Service Worker отключен для разработки');
+    
+    // Можно оставить уведомления
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+            console.log('Разрешение на уведомления:', permission);
+        });
     }
     
-    // Запрос разрешения на уведомления
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
+    // Добавим кнопку установки PWA позже
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        console.log('Приложение запущено как PWA');
     }
 }

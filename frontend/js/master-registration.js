@@ -95,10 +95,11 @@ function createRegistrationModal() {
                 </div>
                 
                 <div class="form-group">
-                    <label for="master-price">Минимальная цена выезда (₽)</label>
+                    <label for="master-price">Минимальная цена выезда (₽) *</label>
                     <input type="number" id="master-price" name="price" 
-                           min="0" max="10000" step="100"
-                           placeholder="500" class="modal__input">
+                           required min="0" max="50000" step="100"
+                           placeholder="1500" class="modal__input">
+                    <small class="form-hint">Эта цена будет отображаться в карточке как "от ХХХ₽"</small>
                 </div>
                 
                 <div class="form-notice">
@@ -138,6 +139,8 @@ function createRegistrationModal() {
     if (closeBtn) {
         closeBtn.addEventListener('click', () => closeRegistrationModal());
     }
+
+    
     
     if (modal) {
         modal.addEventListener('click', (e) => {

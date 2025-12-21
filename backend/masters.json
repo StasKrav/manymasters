@@ -37,7 +37,7 @@
     "price": 0,
     "status": "active",
     "createdAt": "2025-12-21T13:02:52.328Z",
-    "updatedAt": "2025-12-21T13:02:52.328Z",
+    "updatedAt": "2025-12-21T14:04:46.550Z",
     "subscription": {
       "plan": "free",
       "status": "active",
@@ -64,6 +64,32 @@
     "status": "active",
     "createdAt": "2025-12-21T13:11:23.629Z",
     "updatedAt": "2025-12-21T13:11:23.629Z",
+    "subscription": {
+      "plan": "free",
+      "status": "active",
+      "expiresAt": null,
+      "isTrial": true
+    },
+    "stats": {
+      "views": 0,
+      "calls": 0,
+      "rating": 0,
+      "completedOrders": 0
+    }
+  },
+  {
+    "id": "master_1766325332258",
+    "name": "stas",
+    "phone": "79954801011",
+    "categories": [
+      "Другое"
+    ],
+    "services": "massge",
+    "description": "",
+    "price": 1500,
+    "status": "active",
+    "createdAt": "2025-12-21T13:55:32.258Z",
+    "updatedAt": "2025-12-21T13:55:32.258Z",
     "subscription": {
       "plan": "free",
       "status": "active",
