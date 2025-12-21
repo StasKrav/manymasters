@@ -50,8 +50,27 @@ function renderServices(servicesList = services) {
             </div>
         </div>
     `).join('');
+    
+    // 🔥 ВАЖНО: Вешаем обработчики кликов
+    container.querySelectorAll('.service-card').forEach(card => {
+        card.style.cursor = 'pointer'; // Покажем что кликабельно
+        card.addEventListener('click', function() {
+            const serviceId = this.getAttribute('data-id');
+            const service = servicesList.find(s => s.id === serviceId);
+            
+            if (service) {
+                console.log('🖱️ Клик по карточке:', service.master);
+                
+                // Отправляем событие для модалки
+                window.dispatchEvent(new CustomEvent('serviceSelected', {
+                    detail: service
+                }));
+            }
+        });
+    });
+    
+    console.log(`✅ Обработчики кликов добавлены на ${servicesList.length} карточек`);
 }
-
 // Тестовые данные
 function getTestData() {
     return [
