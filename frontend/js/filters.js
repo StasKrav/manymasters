@@ -26,55 +26,95 @@ export function initFilters() {
 }
 
 // Обработка поиска
+// Обработка поиска
 function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase().trim();
     
-    if (!window.renderServices) return;
+    if (!window.services || !Array.isArray(window.services)) {
+        console.error('❌ window.services не массив или не существует');
+        return;
+    }
     
     if (searchTerm === '') {
         applyFilters();
         return;
     }
     
-    const filtered = services.filter(service => 
-        service.name.toLowerCase().includes(searchTerm) ||
-        service.master.toLowerCase().includes(searchTerm) ||
-        service.category.toLowerCase().includes(searchTerm)
-    );
+    // БЕЗОПАСНАЯ фильтрация
+    const filtered = window.services.filter(service => {
+        if (!service) return false;
+        
+        // Берем все текстовые поля
+        const searchableFields = [
+            service.name,
+            service.master,
+            service.category,
+            service.services
+        ].filter(field => field && typeof field === 'string');
+        
+        // Ищем в любом поле
+        return searchableFields.some(field => 
+            field.toLowerCase().includes(searchTerm)
+        );
+    });
     
     renderFilteredServices(filtered);
 }
 
 // Применение фильтров
 function applyFilters() {
-    const categorySelect = document.getElementById('category');
-    const priceSelect = document.getElementById('price');
+    const searchTerm = document.getElementById('search')?.value?.toLowerCase().trim() || '';
+    const selectedCategory = document.getElementById('category')?.value || 'Все услуги';
+    const selectedPrice = document.getElementById('price')?.value || 'Все цены';
     
-    if (!categorySelect || !priceSelect || !window.renderServices) return;
-    
-    let filtered = [...services];
-    
-    // Фильтр по категории
-    const selectedCategory = categorySelect.value;
-    if (selectedCategory !== 'Все услуги') {
-        // Убираем эмодзи для сравнения
-        const category = selectedCategory.replace(/[🚿⚡🔨]/g, '').trim();
-        filtered = filtered.filter(service => service.category === category);
+    if (!window.services || !Array.isArray(window.services)) {
+        console.error('❌ Нет данных для фильтрации');
+        return;
     }
     
-    // Фильтр по цене
-    const selectedPrice = priceSelect.value;
-    switch (selectedPrice) {
-        case 'До 1000₽':
-            filtered = filtered.filter(service => service.price <= 1000);
-            break;
-        case '1000-3000₽':
-            filtered = filtered.filter(service => service.price > 1000 && service.price <= 3000);
-            break;
-        case '3000₽+':
-            filtered = filtered.filter(service => service.price > 3000);
-            break;
-        // "Все цены" - ничего не фильтруем
+    let filtered = [...window.services];
+    
+    // 1. Фильтр по поиску (с защитой)
+    if (searchTerm) {
+        filtered = filtered.filter(service => {
+            if (!service) return false;
+            
+            const name = service.name || '';
+            const master = service.master || '';
+            const category = service.category || '';
+            const services = service.services || '';
+            
+            return name.toLowerCase().includes(searchTerm) ||
+                   master.toLowerCase().includes(searchTerm) ||
+                   category.toLowerCase().includes(searchTerm) ||
+                   services.toLowerCase().includes(searchTerm);
+        });
+    }
+    
+    // 2. Фильтр по категории
+    if (selectedCategory !== 'Все услуги') {
+        const category = selectedCategory.replace(/[🚿⚡🔨🧹🚚✨]/g, '').trim();
+        filtered = filtered.filter(service => 
+            service && service.category && service.category.includes(category)
+        );
+    }
+    
+    // 3. Фильтр по цене
+    if (selectedPrice !== 'Все цены') {
+        filtered = filtered.filter(service => {
+            if (!service || service.price === undefined || service.price === null) {
+                return selectedPrice === 'До 1000₽'; // услуги без цены попадают в "до 1000"
+            }
+            
+            const price = Number(service.price);
+            
+            switch (selectedPrice) {
+                case 'До 1000₽': return price <= 1000;
+                case '1000-3000₽': return price > 1000 && price <= 3000;
+                case '3000₽+': return price > 3000;
+                default: return true;
+            }
+        });
     }
     
     renderFilteredServices(filtered);
