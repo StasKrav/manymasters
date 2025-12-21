@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickFix • Быстрые услуги Перми</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Leaflet CSS (карта) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Font Awesome (иконки) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Наши стили -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header с поиском -->
+    <header class="header">
+        <div class="container">
+            <div class="header__top">
+                <div class="logo">
+                    <h1 class="logo__text">QuickFix</h1>
+                </div>
+                <span class="header__location">Пермь</span>
+            </div>
+            <div class="search">
+                <i class="fas fa-search search__icon"></i>
+                <input type="text" id="search" class="search__input" placeholder="Сантехник срочно...">
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="main">
+        <div class="container">
+            <!-- Фильтры -->
+            <div class="filters">
+                <select id="category" class="filter-select">
+                    <option>Все услуги</option>
+                    <option>🚿 Сантехника</option>
+                    <option>⚡ Электрика</option>
+                    <option>🔨 Ремонт</option>
+                </select>
+                <select id="price" class="filter-select">
+                    <option>Все цены</option>
+                    <option>До 1000₽</option>
+                    <option>1000-3000₽</option>
+                    <option>3000₽+</option>
+                </select>
+                <button id="filter-btn" class="filter-btn">
+                    <i class="fas fa-filter"></i>
+                    Фильтр
+                </button>
+            </div>
+
+            <!-- Карта -->
+            <div id="map" class="map-container"></div>
+
+            <!-- Список услуг -->
+            <div id="services" class="services-list"></div>
+        </div>
+    </main>
+
+    <!-- Модальное окно заказа -->
+    <div id="order-modal" class="modal">
+        <div class="modal__content">
+            <div class="modal__header">
+                <div class="modal__icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div>
+                    <h3 class="modal__title">Оформить заказ</h3>
+                    <p class="modal__subtitle">Комиссия 15%</p>
+                </div>
+            </div>
+            
+            <input type="text" id="service-name" class="modal__input" placeholder="Услуга">
+            <input type="text" id="master-name" class="modal__input" placeholder="Мастер">
+            <textarea id="description" class="modal__textarea" placeholder="Описание проблемы..."></textarea>
+            
+            <div class="modal__actions">
+                <button id="submit-order" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Заказать
+                </button>
+                <button id="close-modal" class="btn btn-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Наши скрипты (модули) -->
+    <script type="module" src="js/main.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</body>
+</html>
