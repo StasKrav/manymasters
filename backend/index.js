@@ -13,7 +13,7 @@ app.use(express.json());
 // Пути к файлам данных
 const DATA_DIR = path.join(__dirname);
 const MASTERS_FILE = path.join(DATA_DIR, 'masters.json');
-const SERVICES_FILE = path.join(DATA_DIR, '../frontend/js/services.js');
+const SERVICES_DATA_FILE = path.join(DATA_DIR, '../frontend/js/services-data.js');
 
 // Инициализация файлов данных
 async function initDataFiles() {
@@ -25,6 +25,30 @@ async function initDataFiles() {
       await fs.writeFile(MASTERS_FILE, JSON.stringify([], null, 2));
       console.log('Создан файл masters.json');
     }
+    
+    // Создаем services-data.js если его нет
+    try {
+      await fs.access(SERVICES_DATA_FILE);
+    } catch {
+      const defaultData = `export default [
+  {
+    "id": "demo_master_1",
+    "name": "Пример услуги",
+    "category": "Демо",
+    "price": 1000,
+    "master": "Демо мастер",
+    "rating": 4.5,
+    "time": "30 мин",
+    "lat": 58.0105,
+    "lng": 56.2502,
+    "premium": false,
+    "avatar": "👨‍🔧"
+  }
+];`;
+      await fs.writeFile(SERVICES_DATA_FILE, defaultData);
+      console.log('Создан файл services-data.js');
+    }
+    
   } catch (error) {
     console.error('Ошибка инициализации данных:', error);
   }
@@ -50,103 +74,54 @@ async function writeMasters(masters) {
   }
 }
 
-// Обновление services.js с активными мастерами
-async function updateServicesJS() {
+// Обновление ТОЛЬКО данных услуг
+async function updateServicesData() {
   try {
     const masters = await readMasters();
     const activeMasters = masters.filter(m => m.status === 'active');
     
     // Конвертируем мастеров в формат услуг
     const services = activeMasters.map((master, index) => ({
-      id: master.id || `master_${index + 1}`,
-      name: master.services?.[0] || 'Услуги мастера',
-      category: master.categories?.[0] || 'Разное',
+      id: master.id || 'master_' + Date.now() + '_' + index,
+      name: master.services ? master.services.split(',')[0].trim() : 'Услуги мастера',
+      category: master.categories ? master.categories[0] : 'Разное',
       price: master.price || 1000,
       master: master.name || 'Мастер',
-      rating: 4.5 + Math.random() * 0.5, // Рандомный рейтинг 4.5-5.0
+      rating: 4.5 + Math.random() * 0.5,
       time: '30 мин',
       lat: 58.0105 + (Math.random() - 0.5) * 0.02,
       lng: 56.2502 + (Math.random() - 0.5) * 0.02,
       premium: false,
-      avatar: master.avatar || '👨‍🔧'
+      avatar: '👨‍🔧'
     }));
     
-    // Читаем текущий services.js
-    let servicesContent = await fs.readFile(SERVICES_FILE, 'utf8');
-    
-    // Заменяем массив услуг (упрощенная замена)
-    // В реальности нужно парсить JS, но для простоты:
-    const newContent = `// Данные услуг (генерируются из мастеров)
-export const services = ${JSON.stringify(services, null, 2)};
-
-// Отрисовка карточек услуг
-function renderServices(servicesList = services) {
-  const container = document.getElementById('services');
-  
-  if (!container) return;
-  
-  if (servicesList.length === 0) {
-    container.innerHTML = \`
-      <div class="no-results glass">
-        <p>Ничего не найдено 😔</p>
-      </div>
-    \`;
-    return;
-  }
-  
-  container.innerHTML = servicesList.map(service => \`
-    <div class="service-card glass" data-id="\${service.id}">
-      <div class="service-card__content">
-        <div class="service-card__avatar">
-          \${service.avatar}
-        </div>
-        <div class="service-card__info">
-          <h3 class="service-card__title">\${service.name}</h3>
-          <p class="service-card__master">\${service.master}</p>
-          <div class="service-card__meta">
-            <span class="service-card__rating">\${service.rating.toFixed(1)} ⭐</span>
-            <span class="service-card__time">
-              <i class="fas fa-clock"></i>
-              \${service.time}
-            </span>
-          </div>
-        </div>
-        <div class="service-card__price">
-          <div class="service-card__price-value">\${service.price}₽</div>
-          \${service.premium ? '<div class="service-card__badge">PREMIUM</div>' : ''}
-        </div>
-      </div>
-    </div>
-  \`).join('');
-  
-  // Добавляем обработчики кликов на карточки
-  container.querySelectorAll('.service-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const serviceId = card.getAttribute('data-id');
-      const service = servicesList.find(s => s.id === serviceId);
-      if (service) {
-        window.dispatchEvent(new CustomEvent('serviceSelected', { 
-          detail: service 
-        }));
+    // Если нет активных мастеров, оставляем демо данные
+    const servicesToSave = services.length > 0 ? services : [
+      {
+        "id": "demo_master_1",
+        "name": "Нет активных мастеров",
+        "category": "Зарегистрируйтесь первым!",
+        "price": 0,
+        "master": "Будьте первым",
+        "rating": 5.0,
+        "time": "Скоро",
+        "lat": 58.0105,
+        "lng": 56.2502,
+        "premium": false,
+        "avatar": "👨‍🔧"
       }
-    });
-  });
-}
-
-// Инициализация услуг
-export function initServices() {
-  console.log('Services module initialized');
-  renderServices();
-  
-  // Экспортируем функцию для других модулей
-  window.renderServices = renderServices;
-}`;
-
-    await fs.writeFile(SERVICES_FILE, newContent);
-    console.log('Обновлен services.js с', activeMasters.length, 'мастерами');
+    ];
+    
+    // Записываем ТОЛЬКО данные
+    const content = 'export default ' + JSON.stringify(servicesToSave, null, 2) + ';';
+    await fs.writeFile(SERVICES_DATA_FILE, content);
+    
+    console.log('✅ Обновлен services-data.js с ' + services.length + ' активными мастерами');
+    return services.length;
     
   } catch (error) {
-    console.error('Ошибка обновления services.js:', error);
+    console.error('❌ Ошибка обновления services-data.js:', error);
+    return 0;
   }
 }
 
@@ -189,16 +164,16 @@ app.post('/api/masters/register', async (req, res) => {
     
     // Создаем нового мастера
     const newMaster = {
-      id: `master_${Date.now()}`,
+      id: 'master_' + Date.now(),
       ...masterData,
       phone: phone,
-      status: 'active', // Пока всех сразу активируем
+      status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       subscription: {
         plan: 'free',
         status: 'active',
-        expiresAt: null, // Бессрочно (пока бесплатно)
+        expiresAt: null,
         isTrial: true
       },
       stats: {
@@ -213,8 +188,8 @@ app.post('/api/masters/register', async (req, res) => {
     masters.push(newMaster);
     await writeMasters(masters);
     
-    // Обновляем фронтенд
-    await updateServicesJS();
+    // Обновляем ТОЛЬКО данные во фронтенде
+    await updateServicesData();
     
     // Возвращаем успех
     res.json({
@@ -228,7 +203,7 @@ app.post('/api/masters/register', async (req, res) => {
       }
     });
     
-    console.log(`✅ Зарегистрирован новый мастер: ${newMaster.name} (${newMaster.phone})`);
+    console.log('✅ Зарегистрирован новый мастер: ' + newMaster.name + ' (' + newMaster.phone + ')');
     
   } catch (error) {
     console.error('Ошибка регистрации:', error);
@@ -253,7 +228,7 @@ app.post('/api/masters/:id/activate', async (req, res) => {
     masters[masterIndex].updatedAt = new Date().toISOString();
     
     await writeMasters(masters);
-    await updateServicesJS();
+    await updateServicesData(); // Обновляем ТОЛЬКО данные
     
     res.json({
       success: true,
@@ -280,7 +255,7 @@ app.post('/api/masters/:id/deactivate', async (req, res) => {
     masters[masterIndex].updatedAt = new Date().toISOString();
     
     await writeMasters(masters);
-    await updateServicesJS();
+    await updateServicesData(); // Обновляем ТОЛЬКО данные
     
     res.json({
       success: true,
@@ -293,7 +268,7 @@ app.post('/api/masters/:id/deactivate', async (req, res) => {
   }
 });
 
-// API: Удаление мастера (опционально)
+// API: Удаление мастера
 app.delete('/api/masters/:id', async (req, res) => {
   try {
     const masters = await readMasters();
@@ -310,8 +285,8 @@ app.delete('/api/masters/:id', async (req, res) => {
     
     await writeMasters(masters);
     
-    // Обновляем фронтенд
-    await updateServicesJS();
+    // Обновляем ТОЛЬКО данные во фронтенде
+    await updateServicesData();
     
     res.json({
       success: true,
@@ -319,7 +294,7 @@ app.delete('/api/masters/:id', async (req, res) => {
       master: deletedMaster
     });
     
-    console.log(`🗑️ Мастер удален: ${deletedMaster.name}`);
+    console.log('🗑️ Мастер удален: ' + deletedMaster.name);
     
   } catch (error) {
     console.error('Ошибка удаления мастера:', error);
@@ -357,13 +332,13 @@ app.get('/api/masters/:id', async (req, res) => {
 app.get('/api/stats', async (req, res) => {
   try {
     const masters = await readMasters();
-    const activeMasters = masters.filter(m => m.status === 'active');
+    const activeCount = masters.filter(m => m.status === 'active').length;
     
     res.json({
       totalMasters: masters.length,
-      activeMasters: activeMasters.length,
+      activeMasters: activeCount,
       pendingMasters: masters.filter(m => m.status === 'pending').length,
-      categories: [...new Set(masters.flatMap(m => m.categories || []))]
+      ordersCount: masters.reduce((sum, m) => sum + (m.stats?.completedOrders || 0), 0)
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -375,8 +350,8 @@ async function startServer() {
   await initDataFiles();
   
   app.listen(PORT, () => {
-    console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
-    console.log(`📞 API регистрации: POST http://localhost:${PORT}/api/masters/register`);
+    console.log('🚀 Сервер запущен на http://localhost:' + PORT);
+    console.log('📞 API регистрации: POST http://localhost:' + PORT + '/api/masters/register');
   });
 }
 
