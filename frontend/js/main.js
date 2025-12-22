@@ -4,7 +4,7 @@ import { initModal } from './modal.js';
 import { initFilters } from './filters.js';
 import { initPWA } from './pwa.js';
 import { initMasterRegistration } from './master-registration.js';
-
+import { initMapToggle } from './map-toggle.js';
 
 // Глобальные переменные приложения
 window.QuickFix = {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initFilters();
         initPWA();
         initMasterRegistration();
-        
+        initMapToggle();
         // Загружаем мастеров с сервера при старте
                 loadMastersFromServer();
                 
@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('❌ Ошибка инициализации приложения:', error);
                 showErrorToUser('Не удалось загрузить приложение. Пожалуйста, обновите страницу.');
             }
+
+            
         });
 
 // Загрузка мастеров с сервера
@@ -102,4 +104,63 @@ function showErrorToUser(message) {
     }, 5000);
 }
 
+// 
+// // В main.js или отдельном файле:
+// function initMapToggle() {
+//     const toggleBtn = document.getElementById('toggle-map-btn');
+//     const mapContainer = document.getElementById('map');
+//     const mapToggleText = document.getElementById('map-toggle-text');
+//     
+//     if (!toggleBtn || !mapContainer) return;
+//     
+//     // Начальное состояние - карта скрыта
+//     let isMapVisible = false;
+//     mapContainer.style.display = 'none';
+//     
+//     toggleBtn.addEventListener('click', function() {
+//         isMapVisible = !isMapVisible;
+//         
+//         if (isMapVisible) {
+//             mapContainer.style.display = 'block';
+//             mapToggleText.textContent = 'Скрыть карту';
+//             toggleBtn.innerHTML = '<i class="fas fa-map"></i> Скрыть карту';
+//             
+//             // Обновляем размер карты
+//             setTimeout(() => {
+//                 if (window.map) window.map.invalidateSize();
+//                 // Показываем только мастеров с координатами
+//                 updateMapMarkers();
+//             }, 100);
+//         } else {
+//             mapContainer.style.display = 'none';
+//             mapToggleText.textContent = 'Показать карту';
+//             toggleBtn.innerHTML = '<i class="fas fa-map"></i> Показать карту';
+//         }
+//     });
+
+// 
+// // Функция для обновления маркеров (только с координатами)
+// function updateMapMarkers() {
+//     if (!window.map || !window.services) return;
+//     
+//     // Очищаем старые маркеры
+//     if (window.markers) {
+//         window.markers.forEach(marker => window.map.removeLayer(marker));
+//     }
+//     
+//     // Добавляем только мастеров с hasLocation = true
+//     const mastersWithLocation = window.services.filter(s => s.hasLocation === true);
+//     
+//     window.markers = mastersWithLocation.map(service => {
+//         const marker = L.marker([service.lat, service.lng])
+//             .addTo(window.map)
+//             .bindPopup(`
+//                 <b>${service.master}</b><br>
+//                 ${service.category}<br>
+//                 ${service.price}₽ • ${service.rating}⭐
+//             `);
+//         
+//         return marker;
+//     });
+// }
 

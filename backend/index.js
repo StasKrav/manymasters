@@ -1,3 +1,6 @@
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
+const USER_AGENT = 'QuickFixApp/1.0 (contact@example.com)'; // Важно для Nominatim
+
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
@@ -54,6 +57,42 @@ async function initDataFiles() {
   }
 }
 
+async function geocodeAddress(address) {
+    try {
+        console.log(`🌍 Геокодируем адрес: ${address}`);
+        
+        const encodedAddress = encodeURIComponent(address + ', Пермь, Россия');
+        const url = `${NOMINATIM_URL}?format=json&q=${encodedAddress}&limit=1`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': USER_AGENT,
+                'Accept-Language': 'ru'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            const result = data[0];
+            console.log(`✅ Адрес найден: ${result.display_name}`);
+            
+            return {
+                lat: parseFloat(result.lat),
+                lng: parseFloat(result.lon),
+                displayName: result.display_name
+            };
+        } else {
+            console.warn('❌ Адрес не найден:', address);
+            return null;
+        }
+        
+    } catch (error) {
+        console.warn('⚠️ Ошибка геокодирования:', error.message);
+        return null;
+    }
+}
+
 // Чтение мастеров
 async function readMasters() {
   try {
@@ -75,144 +114,181 @@ async function writeMasters(masters) {
 }
 
 // Обновление ТОЛЬКО данных услуг
+// В backend/index.js обновляем updateServicesData:
+
 async function updateServicesData() {
-  try {
-    const masters = await readMasters();
-    const activeMasters = masters.filter(m => m.status === 'active');
+    try {
+        const masters = await readMasters();
+        const activeMasters = masters.filter(m => m.status === 'active');
+        
+        const services = activeMasters.map((master) => {
+            // Базовые данные
+            const service = {
+                id: master.id,
+                name: master.services ? master.services.split(',')[0].trim() : 'Услуги',
+                category: master.mainCategory || 'Разное',
+                price: master.price || 1000,
+                master: master.name || 'Мастер',
+                rating: master.stats?.rating || (4.5 + Math.random() * 0.5),
+                time: '30 мин',
+                premium: false,
+                avatar: '👨‍🔧',
+                workType: master.workType || 'mobile',
+                description: master.description || '',
+                hasLocation: false
+            };
+            
+            // Координаты для стационарных мастеров
+            if (master.workType === 'stationary' && master.geocoded) {
+                service.lat = master.geocoded.lat;
+                service.lng = master.geocoded.lng;
+                service.hasLocation = true;
+                service.address = master.address;
+            } else {
+                // Выездные мастера - случайные координаты
+                service.lat = 58.01 + (Math.random() - 0.5) * 0.05;
+                service.lng = 56.25 + (Math.random() - 0.5) * 0.05;
+                service.hasLocation = false;
+            }
+            
+            return service;
+        });
+        
+        // Сохраняем в файл
+        const content = 'export default ' + JSON.stringify(services, null, 2) + ';';
+        await fs.writeFile(SERVICES_DATA_FILE, content);
+        
+        console.log(`✅ Обновлен services-data.js с ${services.length} мастерами`);
+        
+        return services;
+        
+    } catch (error) {
+        console.error('❌ Ошибка обновления:', error);
+        return [];
+    }
+}
+
+// Вспомогательная функция для координат районов
+function getDistrictCoordinates(district) {
+    const coords = {
+        'Центральный': { lat: 58.0132, lng: 56.2487 },
+        'Дзержинский': { lat: 58.0054, lng: 56.2345 },
+        'Индустриальный': { lat: 58.0201, lng: 56.2634 },
+        'Кировский': { lat: 57.9956, lng: 56.2701 },
+        'Ленинский': { lat: 58.0305, lng: 56.2204 },
+        'Мотовилихинский': { lat: 58.0423, lng: 56.2456 },
+        'Орджоникидзевский': { lat: 57.9823, lng: 56.1987 },
+        'Свердловский': { lat: 58.0089, lng: 56.2856 },
+        'all': { lat: 58.01, lng: 56.25 }
+    };
     
-    // Конвертируем мастеров в формат услуг
-    const services = activeMasters.map((master, index) => ({
-      id: master.id || 'master_' + Date.now() + '_' + index,
-      name: master.services ? master.services.split(',')[0].trim() : 'Услуги мастера',
-      category: master.categories ? master.categories[0] : 'Разное',
-      price: master.price || 1000,
-      master: master.name || 'Мастер',
-      rating: 4.5 + Math.random() * 0.5,
-      time: '30 мин',
-      lat: 58.0105 + (Math.random() - 0.5) * 0.02,
-      lng: 56.2502 + (Math.random() - 0.5) * 0.02,
-      premium: false,
-      avatar: '👨‍🔧'
-    }));
-    
-    // Если нет активных мастеров, оставляем демо данные
-    const servicesToSave = services.length > 0 ? services : [
-      {
-        "id": "demo_master_1",
-        "name": "Нет активных мастеров",
-        "category": "Зарегистрируйтесь первым!",
-        "price": 0,
-        "master": "Будьте первым",
-        "rating": 5.0,
-        "time": "Скоро",
-        "lat": 58.0105,
-        "lng": 56.2502,
-        "premium": false,
-        "avatar": "👨‍🔧"
-      }
-    ];
-    
-    // Записываем ТОЛЬКО данные
-    const content = 'export default ' + JSON.stringify(servicesToSave, null, 2) + ';';
-    await fs.writeFile(SERVICES_DATA_FILE, content);
-    
-    console.log('✅ Обновлен services-data.js с ' + services.length + ' активными мастерами');
-    return services.length;
-    
-  } catch (error) {
-    console.error('❌ Ошибка обновления services-data.js:', error);
-    return 0;
-  }
+    return coords[district] || coords['all'];
 }
 
 // API Routes
 
-// Регистрация нового мастера
 app.post('/api/masters/register', async (req, res) => {
-  try {
-    const masterData = req.body;
-    
-    // Валидация
-    if (!masterData.name || !masterData.phone) {
-      return res.status(400).json({ 
-        error: 'Имя и телефон обязательны' 
-      });
+    try {
+        const masterData = req.body;
+        
+        console.log('📥 Получены данные регистрации:', masterData);
+        
+        // УПРОЩЕННАЯ ВАЛИДАЦИЯ
+        if (!masterData.name || !masterData.phone) {
+            return res.status(400).json({ 
+                error: 'Имя и телефон обязательны' 
+            });
+        }
+        
+        // Если мастер стационарный - проверяем адрес
+        if (masterData.workType === 'stationary' && !masterData.address) {
+            return res.status(400).json({ 
+                error: 'Для мастеров с мастерской укажите адрес'
+            });
+        }
+        
+        // Форматирование телефона
+        const phone = masterData.phone.replace(/\D/g, '');
+        
+        // Читаем текущих мастеров
+        const masters = await readMasters();
+        
+        // Проверяем дубликат телефона
+        const existingMaster = masters.find(m => 
+            m.phone.replace(/\D/g, '') === phone
+        );
+        
+        if (existingMaster) {
+            return res.status(400).json({ 
+                error: 'Мастер с таким телефоном уже зарегистрирован'
+            });
+        }
+        
+        // ПРОСТОЕ ГЕОКОДИРОВАНИЕ (всегда успешно)
+        let geocodedResult = null;
+        if (masterData.address && masterData.workType === 'stationary') {
+            console.log(`📍 Адрес указан: ${masterData.address}`);
+            
+            // Случайные координаты в Перми (пока без реального геокодирования)
+            geocodedResult = {
+                lat: 58.01 + (Math.random() - 0.5) * 0.02,
+                lng: 56.25 + (Math.random() - 0.5) * 0.02,
+                displayName: masterData.address
+            };
+            
+            console.log(`📍 Координаты: ${geocodedResult.lat}, ${geocodedResult.lng}`);
+        }
+        
+        // Создаем нового мастера
+        const newMaster = {
+            id: 'master_' + Date.now(),
+            ...masterData,
+            phone: phone,
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            // Простые данные без сложных структур
+            geocoded: geocodedResult,
+            stats: {
+                views: 0,
+                calls: 0,
+                rating: 4.5 + Math.random() * 0.5, // случайный рейтинг
+                completedOrders: 0
+            }
+        };
+        
+        console.log('👨‍🔧 Создан мастер:', newMaster.name);
+        
+        // Добавляем в базу
+        masters.push(newMaster);
+        await writeMasters(masters);
+        
+        // Обновляем данные услуг
+        await updateServicesData();
+        
+        // Возвращаем успех
+        res.json({
+            success: true,
+            masterId: newMaster.id,
+            message: 'Регистрация успешна!',
+            data: {
+                id: newMaster.id,
+                name: newMaster.name,
+                phone: newMaster.phone,
+                address: newMaster.address || '',
+                geocoded: !!newMaster.geocoded
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Ошибка регистрации:', error);
+        res.status(500).json({ 
+            error: 'Внутренняя ошибка сервера',
+            details: error.message 
+        });
     }
-    
-    // Форматирование телефона
-    const phone = masterData.phone.replace(/\D/g, '');
-    if (phone.length < 10) {
-      return res.status(400).json({ 
-        error: 'Некорректный номер телефона' 
-      });
-    }
-    
-    // Читаем текущих мастеров
-    const masters = await readMasters();
-    
-    // Проверяем, нет ли уже мастера с таким телефоном
-    const existingMaster = masters.find(m => 
-      m.phone.replace(/\D/g, '') === phone
-    );
-    
-    if (existingMaster) {
-      return res.status(400).json({ 
-        error: 'Мастер с таким телефоном уже зарегистрирован',
-        masterId: existingMaster.id
-      });
-    }
-    
-    // Создаем нового мастера
-    const newMaster = {
-      id: 'master_' + Date.now(),
-      ...masterData,
-      phone: phone,
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      subscription: {
-        plan: 'free',
-        status: 'active',
-        expiresAt: null,
-        isTrial: true
-      },
-      stats: {
-        views: 0,
-        calls: 0,
-        rating: 0,
-        completedOrders: 0
-      }
-    };
-    
-    // Добавляем в базу
-    masters.push(newMaster);
-    await writeMasters(masters);
-    
-    // Обновляем ТОЛЬКО данные во фронтенде
-    await updateServicesData();
-    
-    // Возвращаем успех
-    res.json({
-      success: true,
-      masterId: newMaster.id,
-      message: 'Регистрация успешна! Ваш профиль уже активен.',
-      data: {
-        id: newMaster.id,
-        name: newMaster.name,
-        phone: newMaster.phone
-      }
-    });
-    
-    console.log('✅ Зарегистрирован новый мастер: ' + newMaster.name + ' (' + newMaster.phone + ')');
-    
-  } catch (error) {
-    console.error('Ошибка регистрации:', error);
-    res.status(500).json({ 
-      error: 'Внутренняя ошибка сервера',
-      details: error.message 
-    });
-  }
 });
+
 
 // API: Активация мастера
 app.post('/api/masters/:id/activate', async (req, res) => {
@@ -343,6 +419,64 @@ app.get('/api/stats', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+
+// API: Получение актуальных данных для фронтенда
+app.get('/api/services/latest', async (req, res) => {
+    try {
+        console.log('📥 Запрос актуальных данных услуг');
+        
+        // Просто читаем из файла services-data.js
+        const data = await fs.readFile(SERVICES_DATA_FILE, 'utf8');
+        
+        // Извлекаем массив из export default [...]
+        const match = data.match(/export default (\[[\s\S]*\]);/);
+        
+        if (match && match[1]) {
+            const services = JSON.parse(match[1]);
+            console.log(`✅ Отправлено ${services.length} услуг`);
+            res.json(services);
+        } else {
+            // Если не нашли - возвращаем пустой массив
+            console.warn('⚠️ Не удалось распарсить services-data.js');
+            res.json([]);
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка получения данных:', error);
+        
+        // В случае ошибки пробуем сгенерировать данные из masters.json
+        try {
+            const masters = await readMasters();
+            const activeMasters = masters.filter(m => m.status === 'active');
+            
+            const services = activeMasters.map((master) => ({
+                id: master.id,
+                name: master.services ? master.services.split(',')[0].trim() : 'Услуги',
+                category: master.mainCategory || 'Разное',
+                price: master.price || 1000,
+                master: master.name || 'Мастер',
+                rating: master.rating || 4.5,
+                time: '30 мин',
+                premium: false,
+                avatar: '👨‍🔧',
+                workType: master.workType || 'mobile',
+                description: master.description || '',
+                hasLocation: master.hasLocation || false,
+                lat: master.coordinates?.lat || 58.01 + (Math.random() - 0.5) * 0.05,
+                lng: master.coordinates?.lng || 56.25 + (Math.random() - 0.5) * 0.05,
+                address: master.address || ''
+            }));
+            
+            console.log(`✅ Сгенерировано ${services.length} услуг из masters.json`);
+            res.json(services);
+            
+        } catch (fallbackError) {
+            console.error('❌ Ошибка fallback:', fallbackError);
+            res.status(500).json({ error: 'Не удалось получить данные услуг' });
+        }
+    }
 });
 
 // Запуск сервера

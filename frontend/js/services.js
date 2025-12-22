@@ -53,39 +53,56 @@ function renderServices(servicesList = services) {
         const initial = getInitials(service.master);
         const bgColor = getAvatarColor(service.master);
         
+        // В services.js в renderServices обновляем шаблон карточки:
+        
         return `
         <div class="service-card glass" data-id="${service.id}">
             <div class="service-card__content">
-                <div class="master-avatar" style="
-                    background-color: ${bgColor};
-                    color: white;
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: bold;
-                    font-size: 1.2rem;
-                    flex-shrink: 0;
-                    margin-right: 12px;
-                ">
+                <div class="master-avatar" style="...">
                     ${initial}
                 </div>
                 <div class="service-card__info">
                     <h3 class="service-card__name">${service.master}</h3>
                     <p class="service-card__service">${service.category}</p>
-                    <div class="service-card__rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                        <span class="reviews-count">(0)</span>
+                    
+                    <!-- Блок локации -->
+                    <div class="service-card__location">
+                        ${service.workType === 'stationary' || service.workType === 'both' 
+                            ? `<span class="location-badge stationary">
+                                 <i class="fas fa-home"></i> Принимает у себя
+                               </span>`
+                            : `<span class="location-badge mobile">
+                                 <i class="fas fa-car"></i> Выездной
+                               </span>`
+                        }
+                        
+                        ${service.experience 
+                            ? `<span class="experience-badge">
+                                 <i class="fas fa-award"></i> ${service.experience}
+                               </span>`
+                            : ''
+                        }
+                    </div>
+                    
+                    ${service.districts && service.districts.length > 0 && service.districts[0] !== 'all'
+                        ? `<div class="districts">
+                             <small><i class="fas fa-map-marker-alt"></i> 
+                             ${service.districts.join(', ')}</small>
+                           </div>`
+                        : ''
+                    }
+                    
+                    <div class="service-card__meta">
+                        <span class="service-card__rating">${service.rating.toFixed(1)} ⭐</span>
+                        <span class="service-card__time">
+                            <i class="fas fa-clock"></i>
+                            ${service.time}
+                        </span>
                     </div>
                 </div>
                 <div class="service-card__price">
-                    ${service.price > 0 ? 'от ' + service.price + '₽' : 'Цена по запросу'}
+                    <div class="service-card__price-value">${service.price}₽</div>
+                    ${service.premium ? '<div class="service-card__badge">PREMIUM</div>' : ''}
                 </div>
             </div>
         </div>

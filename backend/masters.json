@@ -35,9 +35,9 @@
     "services": "электрик",
     "description": "",
     "price": 0,
-    "status": "inactive",
+    "status": "active",
     "createdAt": "2025-12-21T13:02:52.328Z",
-    "updatedAt": "2025-12-21T17:27:11.818Z",
+    "updatedAt": "2025-12-22T05:22:16.360Z",
     "subscription": {
       "plan": "free",
       "status": "active",
@@ -100,6 +100,56 @@
       "views": 0,
       "calls": 0,
       "rating": 0,
+      "completedOrders": 0
+    }
+  },
+  {
+    "id": "master_1766385834838",
+    "name": "Стас Массаж ",
+    "phone": "79124441020",
+    "mainCategory": "Красота и здоровье",
+    "services": "массаж",
+    "description": "",
+    "price": 1500,
+    "workType": "stationary",
+    "address": "ул. Ленина, 1",
+    "status": "active",
+    "createdAt": "2025-12-22T06:43:54.838Z",
+    "updatedAt": "2025-12-22T06:43:54.838Z",
+    "geocoded": {
+      "lat": 58.01862508651815,
+      "lng": 56.25377982041767,
+      "displayName": "ул. Ленина, 1"
+    },
+    "stats": {
+      "views": 0,
+      "calls": 0,
+      "rating": 4.885971880424385,
+      "completedOrders": 0
+    }
+  },
+  {
+    "id": "master_1766386300662",
+    "name": "Стасян Массажан",
+    "phone": "79954802020",
+    "mainCategory": "Красота и здоровье",
+    "services": "массажан",
+    "description": "",
+    "price": 2000,
+    "workType": "stationary",
+    "address": "ул. Луначарского, 51 А",
+    "status": "active",
+    "createdAt": "2025-12-22T06:51:40.662Z",
+    "updatedAt": "2025-12-22T06:51:40.662Z",
+    "geocoded": {
+      "lat": 58.01997200016649,
+      "lng": 56.2437611416869,
+      "displayName": "ул. Луначарского, 51 А"
+    },
+    "stats": {
+      "views": 0,
+      "calls": 0,
+      "rating": 4.772573904147446,
       "completedOrders": 0
     }
   }
