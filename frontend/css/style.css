@@ -9,6 +9,19 @@
     --danger: #dc3545;
     --warning: #ffc107;
     --info: #17a2b8;
+
+    /* Для карточек */
+	--avatar-color-blue: #3b82f6;
+	--avatar-color-blue-dark: #1d4ed8;
+	--avatar-color-green: #10b981;
+	--avatar-color-green-dark: #059669;
+	--avatar-color-purple: #8b5cf6;
+	--avatar-color-purple-dark: #7c3aed;
+	--avatar-color-orange: #f59e0b;
+	--avatar-color-orange-dark: #d97706;
+	--avatar-color-red: #ef4444;
+	--avatar-color-red-dark: #dc2626;
+    
     
     /* Градиенты */
     --gradient-bg: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #0f172a 100%);
@@ -1039,3 +1052,199 @@ body {
 .success-notice.info i {
     color: #3b82f6;
 }
+
+
+
+
+/* Контейнер карточек - сетка */
+#services {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* Карточка мастера */
+.master-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    height: auto;
+    min-height: 280px; /* Минимальная высота, но не фиксированная */
+}
+
+.master-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Верхняя часть: аватар и имя */
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.master-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--avatar-color), var(--avatar-color-dark));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.master-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.master-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.master-category {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Описание */
+.card-description {
+    flex: 1;
+    margin-bottom: 1.25rem;
+}
+
+.card-description p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Мета-информация в одну строку */
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.meta-item i {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.meta-separator {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+/* Кнопка "Посмотреть" */
+.card-actions {
+    margin-top: auto;
+}
+
+.btn-view {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-view:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Адаптивность */
+@media (min-width: 768px) {
+    #services {
+        /* Делаем одинаковую высоту строк в сетке */
+        grid-auto-rows: 1fr;
+    }
+    
+    .master-card {
+        /* Растягиваем на всю высоту ячейки */
+        height: 100%;
+    }
+}
+
+/* Адаптивность для телефонов */
+@media (max-width: 767px) {
+    #services {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .master-card {
+        /* На телефоне не фиксируем высоту */
+        height: auto;
+        min-height: auto;
+        padding: 1.25rem;
+    }
+}
+
+/* Для очень узких экранов */
+@media (max-width: 360px) {
+    .master-card {
+        padding: 1rem;
+    }
+    
+    .card-top {
+        gap: 0.75rem;
+    }
+    
+    .master-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+    }
+}
+

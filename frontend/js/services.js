@@ -17,18 +17,16 @@ function getInitials(masterName) {
 
 // Функция для цвета аватарки (на основе имени)
 function getAvatarColor(name) {
-    if (!name) return '#3B82F6';
+    if (!name) return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
     
     const colors = [
-        '#3B82F6', // синий
-        '#10B981', // зеленый
-        '#8B5CF6', // фиолетовый
-        '#F59E0B', // оранжевый
-        '#EF4444', // красный
-        '#EC4899'  // розовый
+        'linear-gradient(135deg, #3b82f6, #1d4ed8)', // синий
+        'linear-gradient(135deg, #10b981, #059669)', // зеленый
+        'linear-gradient(135deg, #8b5cf6, #7c3aed)', // фиолетовый
+        'linear-gradient(135deg, #f59e0b, #d97706)', // оранжевый
+        'linear-gradient(135deg, #ef4444, #dc2626)'  // красный
     ];
     
-    // Используем длину имени для детерминированного выбора цвета
     const index = name.length % colors.length;
     return colors[index];
 }
@@ -48,43 +46,95 @@ function renderServices(servicesList = services) {
     }
     
     container.innerHTML = servicesList.map(service => {
+        // Получаем инициал и цвет
         const initial = getInitials(service.master);
         const bgColor = getAvatarColor(service.master);
         
-        // В renderServices() должна быть правильная разметка:
+        // Мета-информация в одну строку
+        const rating = service.rating ? service.rating.toFixed(1) : '4.5';
+        const reviewsCount = service.reviewsCount || Math.floor(Math.random() * 50) + 1; // временно
+        const price = service.price ? `${service.price}₽` : 'Цена не указана';
+        const workTypeIcon = service.workType === 'stationary' ? '' : '';
+        const workTypeText = service.workType === 'stationary' ? 'Принимает у себя' : 'Выездной';
+        
         return `
-        <div class="service-card glass" data-id="${service.id}">
-            <div class="service-card__content">
+        <div class="master-card glass" data-id="${service.id}">
+            <!-- Аватар и имя -->
+            <div class="card-top">
                 <div class="master-avatar" style="background: ${bgColor};">
                     ${initial}
                 </div>
-                <div class="service-card__info">
-                    <h3 class="service-card__name">${service.master}</h3>
-                    <p class="service-card__service">${service.category}</p>
-                    
-                    <div class="service-card__meta">
-                        ${service.workType === 'stationary' 
-                            ? '<span class="work-type-badge"><i class="fas fa-home"></i> Принимает у себя</span>'
-                            : '<span class="work-type-badge"><i class="fas fa-car"></i> Выездной</span>'
-                        }
-                        <span class="service-card__rating">${service.rating.toFixed(1)} ⭐</span>
-                        <span class="service-card__time">
-                            <i class="fas fa-clock"></i> ${service.time}
-                        </span>
-                    </div>
-                    
-                    ${service.description 
-                        ? `<p class="service-card__description">${service.description}</p>`
-                        : ''
-                    }
+                <div class="master-info">
+                    <h3 class="master-name">${service.master}</h3>
+                    <p class="master-category">${service.category}</p>
                 </div>
-                <div class="service-card__price">
-                    <div class="service-card__price-value">${service.price}₽</div>
-                </div>
+            </div>
+            
+            <!-- Описание мастера -->
+            <div class="card-description">
+                <p>${service.description || 'Мастер не добавил описание'}</p>
+            </div>
+            
+            <!-- Вся мета-инфо в одну строку -->
+            <div class="card-meta">
+                <span class="meta-item">
+                    <i class="fas fa-star"></i>
+                    ${rating} (${reviewsCount})
+                </span>
+                <span class="meta-separator">•</span>
+                <span class="meta-item">
+                    <i class="fas fa-tag"></i>
+                    ${price}
+                </span>
+                <span class="meta-separator">•</span>
+                <span class="meta-item">
+                    ${workTypeIcon}
+                    ${workTypeText}
+                </span>
+            </div>
+            
+            <!-- Кнопка "Посмотреть" -->
+            <div class="card-actions">
+                <button class="btn-view" data-id="${service.id}">
+                    <i class="fas fa-eye"></i>
+                    Посмотреть
+                </button>
             </div>
         </div>
         `;
     }).join('');
+    
+    // Вешаем обработчики на кнопки
+    container.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const serviceId = this.getAttribute('data-id');
+            const service = servicesList.find(s => s.id === serviceId);
+            if (service) openModal(service);
+        });
+    });
+    
+    // Вешаем на всю карточку
+    container.querySelectorAll('.master-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('.btn-view')) {
+                const serviceId = this.getAttribute('data-id');
+                const service = servicesList.find(s => s.id === serviceId);
+                if (service) openModal(service);
+            }
+        });
+    });
+    
+    console.log("✅ Карточки отрендерены");
+}
+
+// Функция открытия модалки (добавь если нет)
+function openModal(service) {
+    console.log('📱 Открываем модалку для:', service.master);
+    // Здесь код открытия модалки
+    if (window.openModal) {
+        window.openModal(service);
+    }
 }
 
 // Инициализация услуг

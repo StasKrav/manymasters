@@ -122,18 +122,16 @@ async function updateServicesData() {
         const activeMasters = masters.filter(m => m.status === 'active');
         
         const services = activeMasters.map((master) => {
-            // ПРОСТЫЕ ДАННЫЕ БЕЗ КООРДИНАТ
             return {
                 id: master.id,
                 name: master.services ? master.services.split(',')[0].trim() : 'Услуги',
                 category: master.mainCategory || 'Разное',
                 price: master.price || 1000,
                 master: master.name || 'Мастер',
-                rating: master.rating || 4.5,
-                time: '30 мин',
+                rating: master.rating || 4.5 + Math.random() * 0.5,
+                reviewsCount: Math.floor(Math.random() * 50) + 1, // временные отзывы
                 workType: master.workType || 'mobile',
-                description: master.description || ''
-                // НЕТ lat, lng, hasLocation!
+                description: master.description || 'Опытный специалист. Работаю качественно и с гарантией.'
             };
         });
         
