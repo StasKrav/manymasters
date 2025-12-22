@@ -41,65 +41,168 @@ export const services = [
   }
 ];
 
-// Отрисовка карточек услуг
-function renderServices(servicesList = services) {
-  const container = document.getElementById('services');
-  
-  if (!container) return;
-  
-  if (servicesList.length === 0) {
-    container.innerHTML = `
-      <div class="no-results glass">
-        <p>Ничего не найдено 😔</p>
-      </div>
-    `;
-    return;
-  }
-  
-  container.innerHTML = servicesList.map(service => `
-    <div class="service-card glass" data-id="${service.id}">
-      <div class="service-card__content">
-        <div class="service-card__avatar">
-          ${service.avatar}
-        </div>
-        <div class="service-card__info">
-          <h3 class="service-card__title">${service.name}</h3>
-          <p class="service-card__master">${service.master}</p>
-          <div class="service-card__meta">
-            <span class="service-card__rating">${service.rating.toFixed(1)} ⭐</span>
-            <span class="service-card__time">
-              <i class="fas fa-clock"></i>
-              ${service.time}
-            </span>
-          </div>
-        </div>
-        <div class="service-card__price">
-          <div class="service-card__price-value">${service.price}₽</div>
-          ${service.premium ? '<div class="service-card__badge">PREMIUM</div>' : ''}
-        </div>
-      </div>
-    </div>
-  `).join('');
-  
-  // Добавляем обработчики кликов на карточки
-  container.querySelectorAll('.service-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const serviceId = card.getAttribute('data-id');
-      const service = servicesList.find(s => s.id === serviceId);
-      if (service) {
-        window.dispatchEvent(new CustomEvent('serviceSelected', { 
-          detail: service 
-        }));
-      }
-    });
-  });
+// Функция для получения инициалов мастера
+function getInitials(masterName) {
+    if (!masterName || typeof masterName !== 'string') return '?';
+    
+    // Берем первое слово (имя) и первую букву
+    const firstName = masterName.trim().split(' ')[0];
+    const initial = firstName.charAt(0).toUpperCase();
+    
+    return /[А-ЯЁA-Z]/.test(initial) ? initial : '?';
 }
 
-// Инициализация услуг
+// Функция для цвета аватарки (на основе имени)
+function getAvatarColor(name) {
+    if (!name) return '#3B82F6';
+    
+    const colors = [
+        '#3B82F6', // синий
+        '#10B981', // зеленый
+        '#8B5CF6', // фиолетовый
+        '#F59E0B', // оранжевый
+        '#EF4444', // красный
+        '#EC4899'  // розовый
+    ];
+    
+    // Используем длину имени для детерминированного выбора цвета
+    const index = name.length % colors.length;
+    return colors[index];
+}
+// Рендеринг услуг
+function renderServices(servicesList = services) {
+    console.log(`🎨 Рендерим ${servicesList.length} услуг`);
+    
+    const container = document.getElementById('services');
+    if (!container) {
+        console.error('❌ Контейнер услуг не найден!');
+        return;
+    }
+    
+    if (servicesList.length === 0) {
+        container.innerHTML = '<div class="no-results glass">Нет мастеров</div>';
+        return;
+    }
+    
+    container.innerHTML = servicesList.map(service => `
+        <div class="service-card glass" data-id="${service.id}">
+            <div class="service-card__content">
+                <div class="master-avatar">
+                    ${getInitials(service.master)}
+                </div>
+                <div class="service-card__info">
+                    <h3 class="service-card__name">${service.master}</h3>
+                    <p class="service-card__service">${service.category}</p>
+                    <div class="service-card__rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span class="reviews-count">(0)</span>
+                    </div>
+                </div>
+                <div class="service-card__price">
+                    ${service.price > 0 ? `от ${service.price}₽` : 'Цена по запросу'}
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    // 🔥 ВАЖНО: Вешаем обработчики кликов
+    container.querySelectorAll('.service-card').forEach(card => {
+        card.style.cursor = 'pointer'; // Покажем что кликабельно
+        card.addEventListener('click', function() {
+            const serviceId = this.getAttribute('data-id');
+            const service = servicesList.find(s => s.id === serviceId);
+            
+            if (service) {
+                console.log('🖱️ Клик по карточке:', service.master);
+                
+                // Отправляем событие для модалки
+                window.dispatchEvent(new CustomEvent('serviceSelected', {
+                    detail: service
+                }));
+            }
+        });
+    });
+    
+    console.log(`✅ Обработчики кликов добавлены на ${servicesList.length} карточек`);
+}
+// Тестовые данные
+function getTestData() {
+    return [
+        { id: 1, master: 'Тест 1', category: 'Сантехник', price: 1500 },
+        { id: 2, master: 'Тест 2', category: 'Электрик', price: 2000 }
+    ];
+}
+
+// Загрузка с сервера
+async function loadServicesFromServer() {
+    try {
+        console.log('🔄 Загрузка мастеров с сервера...');
+        
+        const response = await fetch('http://localhost:3001/api/masters');
+        if (!response.ok) throw new Error('Ошибка загрузки данных');
+        
+        const masters = await response.json();
+        console.log(`📥 Получено ${masters.length} мастеров`);
+        
+        const activeMasters = masters.filter(m => m.status === 'active');
+        console.log(`✅ Активных мастеров: ${activeMasters.length}`);
+        
+        // Конвертируем ВСЕХ активных
+        const convertedServices = activeMasters.map((master, index) => {
+            // Услуга
+            const serviceText = master.services 
+                ? master.services.split(',')[0].trim()
+                : (master.categories?.[0] || 'Услуги');
+            
+            return {
+                id: master.id || `master_${index}`,
+                master: master.name || 'Мастер',
+                category: serviceText,
+                price: master.price || 0, // может быть 0
+                rating: 4.5,
+                reviewsCount: 0
+            };
+        });
+        
+        console.log(`🔄 Сконвертировано ${convertedServices.length} услуг`);
+        
+        // Обновляем массив
+        services.length = 0;
+        services.push(...convertedServices);
+        
+        // Глобально доступно
+        window.services = services;
+        
+        console.log(`🎯 window.services теперь содержит ${window.services.length} элементов`);
+        
+        // Рендерим
+        renderServices();
+        
+        console.log('✅ Данные загружены и отображены');
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки данных:', error);
+        
+        // Только если совсем пусто
+        if (services.length === 0) {
+            console.log('🔄 Используем тестовые данные...');
+            const testData = getTestData();
+            services.length = 0;
+            services.push(...testData);
+            window.services = services;
+            renderServices();
+        }
+    }
+}
+
+// Инициализация
 export function initServices() {
-  console.log('Services module initialized');
-  renderServices();
-  
-  // Экспортируем функцию для других модулей
-  window.renderServices = renderServices;
+    console.log('Services module initialized');
+    loadServicesFromServer();
+    window.renderServices = renderServices;
+    window.services = services;
 }
