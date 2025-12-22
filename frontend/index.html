@@ -8,8 +8,6 @@
     <!-- PWA Manifest -->
     <!-- <link rel="manifest" href="manifest.json"> -->
     
-    <!-- Leaflet CSS (карта) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <!-- Font Awesome (иконки) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -56,16 +54,6 @@
                     Фильтр
                 </button>
             </div>
-            <!-- В index.html в разделе с фильтрами добавьте: -->
-            <div class="map-toggle">
-                <button id="toggle-map-btn" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-map"></i>
-                    <span id="map-toggle-text">Показать карту</span>
-                </button>
-            </div>
-
-            <!-- Карта -->
-            <div id="map" class="map-container"></div>
 
             <!-- Список услуг -->
             <div id="services" class="services-list"></div>
@@ -101,8 +89,6 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <!-- Наши скрипты (модули) -->
     <script type="module" src="js/main.js"></script>

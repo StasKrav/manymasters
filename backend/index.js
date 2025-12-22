@@ -122,43 +122,26 @@ async function updateServicesData() {
         const activeMasters = masters.filter(m => m.status === 'active');
         
         const services = activeMasters.map((master) => {
-            // Базовые данные
-            const service = {
+            // ПРОСТЫЕ ДАННЫЕ БЕЗ КООРДИНАТ
+            return {
                 id: master.id,
                 name: master.services ? master.services.split(',')[0].trim() : 'Услуги',
                 category: master.mainCategory || 'Разное',
                 price: master.price || 1000,
                 master: master.name || 'Мастер',
-                rating: master.stats?.rating || (4.5 + Math.random() * 0.5),
+                rating: master.rating || 4.5,
                 time: '30 мин',
-                premium: false,
-                avatar: '👨‍🔧',
                 workType: master.workType || 'mobile',
-                description: master.description || '',
-                hasLocation: false
+                description: master.description || ''
+                // НЕТ lat, lng, hasLocation!
             };
-            
-            // Координаты для стационарных мастеров
-            if (master.workType === 'stationary' && master.geocoded) {
-                service.lat = master.geocoded.lat;
-                service.lng = master.geocoded.lng;
-                service.hasLocation = true;
-                service.address = master.address;
-            } else {
-                // Выездные мастера - случайные координаты
-                service.lat = 58.01 + (Math.random() - 0.5) * 0.05;
-                service.lng = 56.25 + (Math.random() - 0.5) * 0.05;
-                service.hasLocation = false;
-            }
-            
-            return service;
         });
         
         // Сохраняем в файл
         const content = 'export default ' + JSON.stringify(services, null, 2) + ';';
         await fs.writeFile(SERVICES_DATA_FILE, content);
         
-        console.log(`✅ Обновлен services-data.js с ${services.length} мастерами`);
+        console.log(`✅ Обновлен services-data.js с ${services.length} мастерами (без карты)`);
         
         return services;
         
@@ -240,21 +223,22 @@ app.post('/api/masters/register', async (req, res) => {
         }
         
         // Создаем нового мастера
+        // В POST /api/masters/register:
         const newMaster = {
             id: 'master_' + Date.now(),
-            ...masterData,
+            name: masterData.name,
             phone: phone,
+            mainCategory: masterData.mainCategory,
+            services: masterData.services,
+            description: masterData.description || '',
+            price: parseInt(masterData.price) || 1000,
+            workType: masterData.workType || 'mobile',
+            address: masterData.address || '', // Адрес только для справки
             status: 'active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            // Простые данные без сложных структур
-            geocoded: geocodedResult,
-            stats: {
-                views: 0,
-                calls: 0,
-                rating: 4.5 + Math.random() * 0.5, // случайный рейтинг
-                completedOrders: 0
-            }
+            rating: 4.5 + Math.random() * 0.5
+            // НЕТ coordinates, hasLocation!
         };
         
         console.log('👨‍🔧 Создан мастер:', newMaster.name);

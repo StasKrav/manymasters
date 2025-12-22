@@ -11,9 +11,6 @@ export default [
     "avatar": "👨‍🔧",
     "workType": "mobile",
     "description": "",
-    "hasLocation": false,
-    "lat": 58.017425485671474,
-    "lng": 56.26303900211097
   },
   {
     "id": "master_1766322172328",
@@ -27,9 +24,6 @@ export default [
     "avatar": "👨‍🔧",
     "workType": "mobile",
     "description": "",
-    "hasLocation": false,
-    "lat": 57.99463432675367,
-    "lng": 56.24743431507064
   },
   {
     "id": "master_1766322683629",
@@ -43,9 +37,6 @@ export default [
     "avatar": "👨‍🔧",
     "workType": "mobile",
     "description": "",
-    "hasLocation": false,
-    "lat": 57.99484819892785,
-    "lng": 56.249550697681485
   },
   {
     "id": "master_1766325332258",
@@ -59,9 +50,6 @@ export default [
     "avatar": "👨‍🔧",
     "workType": "mobile",
     "description": "",
-    "hasLocation": false,
-    "lat": 57.99521333111918,
-    "lng": 56.23029463276747
   },
   {
     "id": "master_1766385834838",
@@ -76,9 +64,6 @@ export default [
     "workType": "stationary",
     "description": "",
     "hasLocation": true,
-    "lat": 58.01862508651815,
-    "lng": 56.25377982041767,
-    "address": "ул. Ленина, 1"
   },
   {
     "id": "master_1766386300662",
@@ -92,9 +77,6 @@ export default [
     "avatar": "👨‍🔧",
     "workType": "stationary",
     "description": "",
-    "hasLocation": true,
-    "lat": 58.01997200016649,
-    "lng": 56.2437611416869,
     "address": "ул. Луначарского, 51 А"
   }
 ];

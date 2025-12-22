@@ -531,6 +531,151 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
+
+
+/* Добавь в основной CSS файл */
+
+/* Улучшенный header без кнопки закрытия справа */
+.modal__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.modal__header-info {
+    flex: 1;
+}
+
+/* Поле для сообщения */
+.message-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-section h4 {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.message-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+}
+
+.message-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.message-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* Кнопки действий */
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.modal-actions .btn {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 0.95rem;
+}
+
+#call-master {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+#send-message {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+#close-modal-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+#close-modal-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Детали услуги */
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-row i {
+    color: #6b7280;
+    width: 16px;
+}
+
+.detail-row strong {
+    color: var(--text-primary);
+}
+
+/* Описание */
+.service-description {
+    margin-top: 1rem;
+}
+
+.service-description h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+#modal-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .modal__content {
+        padding: 1.25rem;
+        margin: 1rem;
+    }
+    
+    .modal__icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+    
+    .modal__title {
+        font-size: 1.25rem;
+    }
+    
+    .modal__subtitle {
+        font-size: 0.85rem;
+    }
+}
+
 /* ===== Адаптивность ===== */
 @media (max-width: 640px) {
     .header__top {

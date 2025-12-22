@@ -1,10 +1,10 @@
 import { initServices } from './services.js';
-import { initMap } from './map.js';
+// import { initMap } from './map.js';
 import { initModal } from './modal.js';
 import { initFilters } from './filters.js';
 import { initPWA } from './pwa.js';
 import { initMasterRegistration } from './master-registration.js';
-import { initMapToggle } from './map-toggle.js';
+// import { initMapToggle } from './map-toggle.js';
 
 // Глобальные переменные приложения
 window.QuickFix = {
@@ -32,12 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         // Инициализируем модули
         initServices();
-        initMap();
+        // initMap();
         initModal();
         initFilters();
         initPWA();
         initMasterRegistration();
-        initMapToggle();
+        // initMapToggle();
         // Загружаем мастеров с сервера при старте
                 loadMastersFromServer();
                 

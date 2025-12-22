@@ -103,7 +103,7 @@ function createRegistrationModal() {
                     </div>
                 </div>
                 
-                // Обновляем блок локации в форме:
+          
 <div class="form-section">
     <h4 class="form-section-title">
         <i class="fas fa-map-marker-alt"></i>
