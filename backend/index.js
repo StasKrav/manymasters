@@ -113,8 +113,7 @@ async function writeMasters(masters) {
   }
 }
 
-// Обновление ТОЛЬКО данных услуг
-// В backend/index.js обновляем updateServicesData:
+
 
 async function updateServicesData() {
     try {
@@ -122,30 +121,56 @@ async function updateServicesData() {
         const activeMasters = masters.filter(m => m.status === 'active');
         
         const services = activeMasters.map((master) => {
-            return {
+            // Создаем объект услуги со ВСЕМИ нужными полями
+            const service = {
                 id: master.id,
                 name: master.services ? master.services.split(',')[0].trim() : 'Услуги',
                 category: master.mainCategory || 'Разное',
                 price: master.price || 1000,
                 master: master.name || 'Мастер',
+                phone: master.phone || '', // ← ОБЯЗАТЕЛЬНО!
                 rating: master.rating || 4.5 + Math.random() * 0.5,
-                reviewsCount: Math.floor(Math.random() * 50) + 1, // временные отзывы
+                reviewsCount: Math.floor(Math.random() * 50) + 1,
                 workType: master.workType || 'mobile',
-                description: master.description || 'Опытный специалист. Работаю качественно и с гарантией.'
+                description: master.description || 'Опытный специалист. Работаю качественно и с гарантией.',
+                createdAt: master.createdAt,
+                updatedAt: master.updatedAt
             };
+            
+            // Добавляем адрес только если есть
+            if (master.address) {
+                service.address = master.address;
+            }
+            
+            // Добавляем геоданные если есть
+            if (master.geocoded) {
+                service.geocoded = master.geocoded;
+            }
+            
+            return service;
         });
         
-        // Сохраняем в файл
-        const content = 'export default ' + JSON.stringify(services, null, 2) + ';';
+        // Проверяем что телефоны есть
+        console.log('📊 Проверка данных перед записью:');
+        services.forEach((s, i) => {
+            console.log(`  ${i+1}. ${s.master}: phone=${s.phone ? '✓' : '✗'}`);
+        });
+        
+        // Форматируем для ES6 модуля
+        const content = `// Автоматически сгенерировано из masters.json
+// Не редактировать вручную!
+export default ${JSON.stringify(services, null, 2)};`;
+        
         await fs.writeFile(SERVICES_DATA_FILE, content);
         
-        console.log(`✅ Обновлен services-data.js с ${services.length} мастерами (без карты)`);
+        console.log(`✅ Файл обновлен: ${SERVICES_DATA_FILE}`);
+        console.log(`📱 Телефоны добавлены: ${services.filter(s => s.phone).length}/${services.length}`);
         
         return services;
         
     } catch (error) {
         console.error('❌ Ошибка обновления:', error);
-        return [];
+        throw error;
     }
 }
 
@@ -458,6 +483,28 @@ app.get('/api/services/latest', async (req, res) => {
             console.error('❌ Ошибка fallback:', fallbackError);
             res.status(500).json({ error: 'Не удалось получить данные услуг' });
         }
+    }
+});
+
+// index.js - добавим новый endpoint
+app.post('/api/services/update', async (req, res) => {
+    try {
+        console.log('🔄 Запрос на обновление данных услуг');
+        
+        const updatedServices = await updateServicesData();
+        
+        res.json({
+            success: true,
+            message: `Данные обновлены. ${updatedServices.length} услуг`,
+            services: updatedServices
+        });
+        
+    } catch (error) {
+        console.error('❌ Ошибка обновления:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 

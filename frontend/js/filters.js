@@ -172,3 +172,4 @@ window.resetFilters = resetFilters;
 
 // Экспортируем функции
 export { applyFilters, resetFilters };
+

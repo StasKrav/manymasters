@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ManyMasters • Поиск мастеров в Перми</title>
+    <title>FinderProfi • Поиск мастеров в Перми</title>
 	<link rel="icon" href="./favicon.svg" type="image/svg+xml">
     
     <!-- PWA Manifest -->
@@ -22,7 +22,7 @@
         <div class="container">
             <div class="header__top">
                 <div class="logo">
-                    <h1 class="logo__text">МногоМастеров</h1>
+                    <h1 class="logo__text">FinderProfi</h1>
                 </div>
                 <span class="header__location">Пермь</span>
             </div>
@@ -60,6 +60,80 @@
             <div id="services" class="services-list"></div>
         </div>
     </main>
+
+    <!-- Футер с юридическими ссылками -->
+    <footer class="footer" style="
+        padding: 2rem 0;
+        background: rgba(15, 23, 42, 0.8);
+        border-top: 1px solid var(--border-color);
+        margin-top: 2rem;
+    ">
+        <div class="container">
+            <div class="footer-content" style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+                text-align: center;
+            ">
+                <div class="footer-links" style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 1.5rem;
+                    margin-bottom: 1rem;
+                ">
+                    <a href="privacy-policy.html" 
+                       target="_blank" 
+                       style="
+                        color: var(--text-secondary);
+                        text-decoration: none;
+                        transition: color 0.2s;
+                        font-size: 0.9rem;
+                    " onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='var(--text-secondary)'">
+                        Политика конфиденциальности
+                    </a>
+                    <a href="terms-of-service.html" 
+                       target="_blank" 
+                       style="
+                        color: var(--text-secondary);
+                        text-decoration: none;
+                        transition: color 0.2s;
+                        font-size: 0.9rem;
+                    " onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='var(--text-secondary)'">
+                        Пользовательское соглашение
+                    </a>
+                    <a href="data-processing-agreement.html" 
+                       target="_blank" 
+                       style="
+                        color: var(--text-secondary);
+                        text-decoration: none;
+                        transition: color 0.2s;
+                        font-size: 0.9rem;
+                    " onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='var(--text-secondary)'">
+                        Согласие на обработку данных
+                    </a>
+                </div>
+                
+                <div class="footer-contact" style="
+                    color: var(--text-muted);
+                    font-size: 0.85rem;
+                    margin-bottom: 1rem;
+                ">
+                    <p>По вопросам обработки данных: privacy@finderprofi.ru</p>
+                </div>
+                
+                <div class="footer-copyright" style="
+                    color: var(--text-muted);
+                    font-size: 0.8rem;
+                    opacity: 0.7;
+                ">
+                    <p>© 2026 FinderProfi. Сервис поиска мастеров в Перми.</p>
+                    <p>Все права защищены. ИНН: [УКАЖИТЕ ВАШ ИНН]</p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- Модальное окно заказа -->
     <div id="order-modal" class="modal">

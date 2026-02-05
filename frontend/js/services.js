@@ -1,39 +1,32 @@
-// Импортируем данные из отдельного файла
+// services.js - ВЕРНИ ЭТУ ПРОСТУЮ ВЕРСИЮ:
 import servicesData from './services-data.js';
 
-// Экспортируем данные для других модулей
+// 1. ЭТА СТРОКА ОБЯЗАТЕЛЬНА:
 export const services = servicesData;
 
 // Функция для получения инициалов мастера
 function getInitials(masterName) {
     if (!masterName || typeof masterName !== 'string') return '?';
-    
-    // Берем первое слово (имя) и первую букву
     const firstName = masterName.trim().split(' ')[0];
     const initial = firstName.charAt(0).toUpperCase();
-    
     return /[А-ЯЁA-Z]/.test(initial) ? initial : '?';
 }
 
-// Функция для цвета аватарки (на основе имени)
+// Функция для цвета аватарки
 function getAvatarColor(name) {
     if (!name) return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-    
     const colors = [
-        'linear-gradient(135deg, #3b82f6, #1d4ed8)', // синий
-        'linear-gradient(135deg, #10b981, #059669)', // зеленый
-        'linear-gradient(135deg, #8b5cf6, #7c3aed)', // фиолетовый
-        'linear-gradient(135deg, #f59e0b, #d97706)', // оранжевый
-        'linear-gradient(135deg, #ef4444, #dc2626)'  // красный
+        'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+        'linear-gradient(135deg, #10b981, #059669)',
+        'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'linear-gradient(135deg, #f59e0b, #d97706)',
+        'linear-gradient(135deg, #ef4444, #dc2626)'
     ];
-    
     const index = name.length % colors.length;
     return colors[index];
 }
 
-// Рендеринг услуг
-// В services.js в renderServices убираем всё про локацию:
-
+// Рендеринг услуг - ПРОСТАЯ ВЕРСИЯ
 function renderServices(servicesList = services) {
     console.log("🎨 Рендерим " + servicesList.length + " услуг");
     
@@ -45,21 +38,17 @@ function renderServices(servicesList = services) {
         return;
     }
     
+    // ГЕНЕРИРУЕМ HTML
     container.innerHTML = servicesList.map(service => {
-        // Получаем инициал и цвет
         const initial = getInitials(service.master);
         const bgColor = getAvatarColor(service.master);
-        
-        // Мета-информация в одну строку
         const rating = service.rating ? service.rating.toFixed(1) : '4.5';
-        const reviewsCount = service.reviewsCount || Math.floor(Math.random() * 50) + 1; // временно
+        const reviewsCount = service.reviewsCount || Math.floor(Math.random() * 50) + 1;
         const price = service.price ? `${service.price}₽` : 'Цена не указана';
-        const workTypeIcon = service.workType === 'stationary' ? '' : '';
         const workTypeText = service.workType === 'stationary' ? 'Принимает у себя' : 'Выездной';
         
         return `
         <div class="master-card glass" data-id="${service.id}">
-            <!-- Аватар и имя -->
             <div class="card-top">
                 <div class="master-avatar" style="background: ${bgColor};">
                     ${initial}
@@ -70,12 +59,10 @@ function renderServices(servicesList = services) {
                 </div>
             </div>
             
-            <!-- Описание мастера -->
             <div class="card-description">
                 <p>${service.description || 'Мастер не добавил описание'}</p>
             </div>
             
-            <!-- Вся мета-инфо в одну строку -->
             <div class="card-meta">
                 <span class="meta-item">
                     <i class="fas fa-star"></i>
@@ -88,12 +75,10 @@ function renderServices(servicesList = services) {
                 </span>
                 <span class="meta-separator">•</span>
                 <span class="meta-item">
-                    ${workTypeIcon}
                     ${workTypeText}
                 </span>
             </div>
             
-            <!-- Кнопка "Посмотреть" -->
             <div class="card-actions">
                 <button class="btn-view" data-id="${service.id}">
                     <i class="fas fa-eye"></i>
@@ -104,23 +89,26 @@ function renderServices(servicesList = services) {
         `;
     }).join('');
     
-    // Вешаем обработчики на кнопки
+    // ВЕШАЕМ ОБРАБОТЧИКИ ПРЯМО ЗДЕСЬ
     container.querySelectorAll('.btn-view').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const serviceId = this.getAttribute('data-id');
             const service = servicesList.find(s => s.id === serviceId);
-            if (service) openModal(service);
+            if (service && window.openModal) {
+                window.openModal(service);
+            }
         });
     });
     
-    // Вешаем на всю карточку
     container.querySelectorAll('.master-card').forEach(card => {
         card.addEventListener('click', function(e) {
             if (!e.target.closest('.btn-view')) {
                 const serviceId = this.getAttribute('data-id');
                 const service = servicesList.find(s => s.id === serviceId);
-                if (service) openModal(service);
+                if (service && window.openModal) {
+                    window.openModal(service);
+                }
             }
         });
     });
@@ -128,23 +116,18 @@ function renderServices(servicesList = services) {
     console.log("✅ Карточки отрендерены");
 }
 
-// Функция открытия модалки (добавь если нет)
-function openModal(service) {
-    console.log('📱 Открываем модалку для:', service.master);
-    // Здесь код открытия модалки
-    if (window.openModal) {
-        window.openModal(service);
-    }
-}
-
-// Инициализация услуг
+// Инициализация услуг - ПРОСТАЯ ВЕРСИЯ
 export function initServices() {
     console.log('Services module initialized');
     
-    // Сразу рендерим
+    // ИСПОЛЬЗУЕМ ЛОКАЛЬНЫЕ ДАННЫЕ
+    window.services = services;
+    
+    // Рендерим
     renderServices();
     
-    // Экспортируем функцию для других модулей
+    // Экспортируем функцию
     window.renderServices = renderServices;
-    window.services = services;
+    
+    console.log('✅ Services инициализированы, телефоны:', services[0]?.phone);
 }

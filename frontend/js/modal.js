@@ -1,4 +1,4 @@
-// modal.js - УЛУЧШЕННАЯ ВЕРСИЯ
+// modal.js - УПРОЩЕННАЯ ВЕРСИЯ ДЛЯ САЙТА (с копированием телефона)
 export function initModal() {
     console.log('Modal module initialized');
     
@@ -10,8 +10,7 @@ export function initModal() {
 
 // Обработчик клика по карточке
 function handleCardClick(event) {
-    // Ищем ближайшую карточку
-    const card = event.target.closest('.service-card');
+    const card = event.target.closest('.service-card') || event.target.closest('.master-card');
     
     if (card) {
         const serviceId = card.getAttribute('data-id');
@@ -28,7 +27,6 @@ function handleCardClick(event) {
 
 // Открытие модалки
 function openModal(service) {
-    // Убеждаемся что модалка создана
     ensureModalExists();
     
     const modal = document.getElementById('service-modal');
@@ -57,7 +55,7 @@ function ensureModalExists() {
     }
 }
 
-// Создание модалки - УПРОЩЕННАЯ ВЕРСИЯ
+// Создание модалки - УПРОЩЕННАЯ ДЛЯ САЙТА
 function createModal() {
     const modalHTML = `
     <div id="service-modal" class="modal" style="display: none;">
@@ -70,7 +68,6 @@ function createModal() {
                     <h3 class="modal__title" id="modal-master-name">Мастер</h3>
                     <p class="modal__subtitle" id="modal-service">Услуга</p>
                 </div>
-                <!-- УБРАЛИ КНОПКУ С КРЕСТИКОМ СЛЕВА -->
             </div>
             
             <div class="modal__body">
@@ -79,7 +76,6 @@ function createModal() {
                         <i class="fas fa-star"></i>
                         <span>Рейтинг: <strong id="modal-rating">4.5</strong> ⭐</span>
                     </div>
-                    <!-- УБРАЛИ СТРОКУ "30 МИН" -->
                     <div class="detail-row">
                         <i class="fas fa-tag"></i>
                         <span>Цена: <strong id="modal-price">1000</strong> ₽</span>
@@ -95,26 +91,20 @@ function createModal() {
                     <p id="modal-description">Нет описания</p>
                 </div>
                 
-                <!-- ДОБАВИЛИ ПОЛЕ ДЛЯ СООБЩЕНИЯ -->
-                <div class="message-section">
-                    <h4>Ваше сообщение мастеру (необязательно):</h4>
-                    <textarea 
-                        id="client-message" 
-                        class="message-input"
-                        placeholder="Например: Мне нужно починить кран на кухне, есть ли у вас нужные запчасти?"
-                        rows="3"
-                    ></textarea>
+                <!-- КНОПКА ДЛЯ КОПИРОВАНИЯ ТЕЛЕФОНА -->
+                <div class="contact-section">
+                    <h4>Телефон мастера:</h4>
+                    <div class="phone-button" id="phone-button">
+                        <i class="fas fa-phone"></i>
+                        <span id="phone-text">+7 912 345 67 89</span>
+                    </div>
+                    <p class="phone-hint" id="phone-hint">
+                        <i class="fas fa-copy"></i>
+                        Нажмите, чтобы скопировать номер
+                    </p>
                 </div>
                 
                 <div class="modal-actions">
-                    <button class="btn btn-primary" id="call-master">
-                        <i class="fas fa-phone"></i>
-                        Позвонить мастеру
-                    </button>
-                    <button class="btn btn-secondary" id="send-message">
-                        <i class="fas fa-paper-plane"></i>
-                        Отправить сообщение
-                    </button>
                     <button class="btn btn-close-modal" id="close-modal-btn">
                         Закрыть
                     </button>
@@ -136,8 +126,6 @@ function createModal() {
 function setupModalHandlers() {
     const modal = document.getElementById('service-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
-    const callBtn = document.getElementById('call-master');
-    const sendMessageBtn = document.getElementById('send-message');
     
     // Закрытие по кнопке
     if (closeModalBtn) {
@@ -159,56 +147,6 @@ function setupModalHandlers() {
             closeModal();
         }
     });
-    
-    // Кнопка звонка
-    if (callBtn) {
-        callBtn.addEventListener('click', handleCallClick);
-    }
-    
-    // Кнопка отправки сообщения
-    if (sendMessageBtn) {
-        sendMessageBtn.addEventListener('click', handleSendMessage);
-    }
-}
-
-// Обработка звонка
-function handleCallClick() {
-    const masterName = document.getElementById('modal-master-name')?.textContent;
-    alert(`📞 Имитация звонка мастеру: ${masterName}\n\nВ реальном приложении здесь будет переход в телефон.`);
-}
-
-// Обработка отправки сообщения
-function handleSendMessage() {
-    const messageInput = document.getElementById('client-message');
-    const masterName = document.getElementById('modal-master-name')?.textContent;
-    const message = messageInput?.value.trim();
-    
-    if (!message) {
-        alert('✏️ Напишите сообщение мастеру');
-        messageInput?.focus();
-        return;
-    }
-    
-    if (message.length < 5) {
-        alert('Сообщение слишком короткое');
-        return;
-    }
-    
-    // В реальном приложении здесь будет отправка на сервер
-    console.log('💬 Сообщение мастеру:', {
-        master: masterName,
-        message: message,
-        timestamp: new Date().toISOString()
-    });
-    
-    alert(`✅ Сообщение отправлено мастеру "${masterName}"\n\n"${message}"`);
-    
-    // Очищаем поле и закрываем модалку
-    if (messageInput) {
-        messageInput.value = '';
-    }
-    
-    closeModal();
 }
 
 // Закрытие модалки
@@ -218,17 +156,15 @@ function closeModal() {
         modal.classList.remove('show');
         setTimeout(() => {
             modal.style.display = 'none';
-            // Очищаем поле сообщения при закрытии
-            const messageInput = document.getElementById('client-message');
-            if (messageInput) messageInput.value = '';
         }, 300);
         document.body.style.overflow = '';
     }
 }
 
 // Обновление контента модалки
+// modal.js - упрощаем, так как данные уже содержат телефоны
 function updateModalContent(service) {
-    console.log('📝 Заполняем модалку данными:', service);
+    console.log('📝 Заполняем модалку:', service);
     
     // Основная информация
     setElementText('modal-master-name', service.master || 'Мастер');
@@ -236,15 +172,17 @@ function updateModalContent(service) {
     setElementText('modal-rating', service.rating?.toFixed(1) || '4.5');
     setElementText('modal-price', service.price || '1000');
     
-    // Тип работы
+    // Тип работы и адрес
     const workTypeEl = document.getElementById('modal-work-type');
     if (workTypeEl) {
-        workTypeEl.innerHTML = service.workType === 'stationary' 
-            ? '<i class="fas fa-home"></i> Принимает у себя' 
-            : '<i class="fas fa-car"></i> Выездной мастер';
+        if (service.workType === 'stationary' && service.address) {
+            workTypeEl.innerHTML = `<i class="fas fa-home"></i> ${service.address}`;
+        } else {
+            workTypeEl.innerHTML = '<i class="fas fa-car"></i> Выездной мастер';
+        }
     }
     
-    // Описание мастера
+    // Описание
     const descEl = document.getElementById('modal-description');
     if (descEl) {
         descEl.textContent = service.description || 'Мастер не добавил описание';
@@ -256,18 +194,98 @@ function updateModalContent(service) {
         const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'];
         const color = colors[service.master.length % colors.length];
         avatarEl.style.background = `linear-gradient(135deg, ${color}, ${color}99)`;
-        
-        // Инициал
-        const initial = service.master.charAt(0).toUpperCase();
-        avatarEl.innerHTML = initial.match(/[А-ЯA-Z]/) ? initial : 'M';
+        avatarEl.innerHTML = service.master.charAt(0).toUpperCase();
     }
     
-    // Сохраняем ID сервиса для кнопок
-    const callBtn = document.getElementById('call-master');
-    const sendBtn = document.getElementById('send-message');
+    // Настраиваем кнопку телефона
+    setupPhoneButton(service);
+}
+
+// Настройка кнопки телефона с копированием
+function setupPhoneButton(service) {
+    const phoneBtn = document.getElementById('phone-button');
+    const phoneText = document.getElementById('phone-text');
+    const phoneHint = document.getElementById('phone-hint');
     
-    if (callBtn) callBtn.setAttribute('data-service-id', service.id);
-    if (sendBtn) sendBtn.setAttribute('data-service-id', service.id);
+    if (!phoneBtn || !phoneText) return;
+    
+    if (service.phone) {
+        const formattedPhone = formatPhone(service.phone);
+        phoneText.textContent = formattedPhone;
+        
+        // Делаем кнопку кликабельной для копирования
+        phoneBtn.style.cursor = 'pointer';
+        
+        // Вешаем обработчик копирования
+        phoneBtn.addEventListener('click', async function() {
+            try {
+                // Копируем чистый номер (без пробелов)
+                const cleanPhone = service.phone.replace(/\D/g, '');
+                await navigator.clipboard.writeText(cleanPhone);
+                
+                // Меняем текст кнопки на "Скопировано!"
+                const originalText = phoneText.textContent;
+                const originalHTML = phoneBtn.innerHTML;
+                
+                phoneBtn.innerHTML = '<i class="fas fa-check"></i> <span>Скопировано!</span>';
+                phoneBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                
+                if (phoneHint) {
+                    phoneHint.innerHTML = `<i class="fas fa-check-circle"></i> Номер скопирован в буфер`;
+                    phoneHint.style.color = '#10b981';
+                }
+                
+                // Возвращаем через 2 секунды
+                setTimeout(() => {
+                    phoneBtn.innerHTML = originalHTML;
+                    phoneText.textContent = originalText;
+                    
+                    if (phoneHint) {
+                        phoneHint.innerHTML = `<i class="fas fa-copy"></i> Нажмите, чтобы скопировать номер`;
+                        phoneHint.style.color = '';
+                    }
+                }, 2000);
+                
+                // Логируем копирование
+                console.log('📋 Скопирован номер:', cleanPhone);
+                
+            } catch (err) {
+                console.error('Ошибка копирования:', err);
+                phoneText.textContent = 'Ошибка копирования';
+                setTimeout(() => {
+                    phoneText.textContent = formattedPhone;
+                }, 1000);
+            }
+        });
+        
+    } else {
+        // Нет телефона
+        phoneText.textContent = 'Телефон не указан';
+        phoneBtn.style.opacity = '0.6';
+        phoneBtn.style.cursor = 'not-allowed';
+        
+        if (phoneHint) {
+            phoneHint.innerHTML = `<i class="fas fa-exclamation-circle"></i> Мастер не указал телефон`;
+            phoneHint.style.color = '#ef4444';
+        }
+    }
+}
+
+// Форматирование телефона
+function formatPhone(phone) {
+    if (!phone) return '';
+    
+    const cleaned = phone.replace(/\D/g, '');
+    
+    if (cleaned.length === 11) {
+        return `+7 ${cleaned.substring(1, 4)} ${cleaned.substring(4, 7)} ${cleaned.substring(7, 9)} ${cleaned.substring(9)}`;
+    }
+    
+    if (cleaned.length === 10) {
+        return `+7 ${cleaned.substring(0, 3)} ${cleaned.substring(3, 6)} ${cleaned.substring(6, 8)} ${cleaned.substring(8)}`;
+    }
+    
+    return phone;
 }
 
 // Вспомогательная функция
