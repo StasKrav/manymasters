@@ -1,0 +1,37 @@
+[
+  {
+    "code": "DEMO-INVITE-001",
+    "createdBy": "admin",
+    "createdAt": "2026-06-20T00:00:00.000Z",
+    "expiresAt": null,
+    "maxUses": 1,
+    "usedCount": 0,
+    "usedBy": [],
+    "status": "active"
+  },
+  {
+    "code": "MU59AN",
+    "createdBy": "admin",
+    "createdAt": "2026-06-20T16:31:08.964Z",
+    "expiresAt": "2026-06-27T16:31:08.964Z",
+    "maxUses": 1,
+    "usedCount": 0,
+    "usedBy": [],
+    "status": "active"
+  },
+  {
+    "code": "U6ZNC8",
+    "createdBy": "admin",
+    "createdAt": "2026-06-20T16:32:55.120Z",
+    "expiresAt": "2026-06-27T16:32:55.120Z",
+    "maxUses": 1,
+    "usedCount": 1,
+    "usedBy": [
+      {
+        "masterId": "master_1781973175291",
+        "usedAt": "2026-06-20T16:32:55.293Z"
+      }
+    ],
+    "status": "used"
+  }
+]

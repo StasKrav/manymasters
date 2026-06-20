@@ -1,7 +1,7 @@
 {
-  "name": "quickfix-backend",
+  "name": "otdelkadrov-backend",
   "version": "1.0.0",
-  "description": "API для регистрации мастеров QuickFix",
+  "description": "API для регистрации специалистов Отдел Кадров",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

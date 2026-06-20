@@ -7,7 +7,7 @@ import { initMasterRegistration } from './master-registration.js';
 // import { initMapToggle } from './map-toggle.js';
 
 // Глобальные переменные приложения
-window.QuickFix = {
+window.OtdelKadrov = {
     version: '1.0.0',
     config: {
         city: 'Пермь',
@@ -27,7 +27,7 @@ window.QuickFix = {
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
-    console.log(`QuickFix v${window.QuickFix.version} запущен`);
+    console.log(`Отдел Кадров v${window.OtdelKadrov.version} запущен`);
     
     try {
         // Инициализируем модули
@@ -64,7 +64,7 @@ async function loadMastersFromServer() {
             console.log(`📋 Загружено ${masters.length} мастеров с сервера`);
             
             // Можно сохранить в глобальное состояние
-            window.QuickFix.masters = masters;
+            window.OtdelKadrov.masters = masters;
         }
     } catch (error) {
         console.warn('Не удалось загрузить мастеров с сервера:', error);

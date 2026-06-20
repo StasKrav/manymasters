@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель QuickFix</title>
+    <title>Админ-панель Отдела Кадров</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -48,6 +48,73 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
+        }
+        
+        /* Инвайты */
+        .invite-section {
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.15);
+        }
+        
+        .invite-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .invite-section h2 i {
+            color: #8b5cf6;
+        }
+        
+        .invite-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .invite-stat {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .invite-stat .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+        
+        .invite-stat .label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+        
+        .invite-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .invite-code-display {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #c4b5fd;
+            font-family: monospace;
+            display: none;
         }
         
         .stat-card {
@@ -175,7 +242,7 @@
         <div class="admin-header">
             <div class="logo">
                 <i class="fas fa-tools" style="color: #3b82f6; font-size: 1.5rem;"></i>
-                <h1>QuickFix Админ-панель</h1>
+                <h1>Отдел Кадров  |  Админ-панель</h1>
             </div>
             <div>
                 <a href="/" class="btn" style="background: #3b82f6; color: white; text-decoration: none;">
@@ -203,6 +270,41 @@
             </div>
         </div>
         
+        <!-- Секция инвайтов -->
+        <div class="invite-section">
+            <h2><i class="fas fa-key"></i> Инвайт-коды</h2>
+            
+            <div class="invite-stats">
+                <div class="invite-stat">
+                    <div class="value" id="invite-total">0</div>
+                    <div class="label">Всего создано</div>
+                </div>
+                <div class="invite-stat">
+                    <div class="value" id="invite-used">0</div>
+                    <div class="label">Использовано</div>
+                </div>
+                <div class="invite-stat">
+                    <div class="value" id="invite-active">0</div>
+                    <div class="label">Активных</div>
+                </div>
+            </div>
+            
+            <div class="invite-actions">
+                <button class="btn" onclick="createAdminInvite()"
+                        style="background: #8b5cf6; color: white;">
+                    <i class="fas fa-plus"></i> Создать инвайт
+                </button>
+                <div class="invite-code-display" id="invite-code-display">
+                    <i class="fas fa-key"></i>
+                    <span id="invite-code-value"></span>
+                    <button class="btn btn-sm" onclick="copyInviteCode()"
+                            style="background: rgba(255,255,255,0.1); color: white; margin-left: 1rem;">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
         <div class="masters-table">
             <div id="masters-list" class="loading">
                 <i class="fas fa-spinner fa-spin"></i> Загрузка мастеров...
@@ -211,7 +313,7 @@
     </div>
     
     <script>
-        const API_URL = 'http://localhost:3001/api';
+        const API_URL = window.location.origin + '/api';
         
         // Загрузка статистики
         async function loadStats() {
@@ -316,7 +418,6 @@
         }
         
         // Активация мастера
-        // Реальная активация
         async function activateMaster(masterId) {
             if (!confirm('Активировать этого мастера?')) return;
             
@@ -337,7 +438,6 @@
             }
         }
         
-        // Реальная деактивация
         async function deactivateMaster(masterId) {
             if (!confirm('Деактивировать этого мастера?')) return;
             
@@ -358,7 +458,6 @@
             }
         }
 
-        // Удаление мастера
         async function deleteMaster(masterId, masterName) {
             if (!confirm(`УДАЛИТЬ мастера "${masterName}"?\nЭто действие нельзя отменить!`)) return;
             
@@ -377,7 +476,6 @@
                 const result = await response.json();
                 alert(`🗑️ ${result.message}`);
                 
-                // Обновляем данные
                 loadMasters();
                 loadStats();
                 
@@ -386,13 +484,10 @@
             }
         }
         
-        // Просмотр мастера
         function viewMaster(masterId) {
-            // Можно открыть модалку с детальной информацией
             alert(`Просмотр мастера ${masterId}\nДетальная информация будет здесь`);
         }
         
-        // Экспорт данных
         function exportData() {
             const data = JSON.stringify(window.mastersData, null, 2);
             const blob = new Blob([data], { type: 'application/json' });
@@ -403,21 +498,97 @@
             a.click();
         }
         
-        // Автообновление каждые 30 секунд
+        // ===== ИНВАЙТЫ =====
+        
+        // Загрузка статистики инвайтов
+        async function loadInviteStats() {
+            try {
+                const response = await fetch(`${API_URL}/invites/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('invite-total').textContent = stats.totalInvites || 0;
+                document.getElementById('invite-used').textContent = stats.usedInvites || 0;
+                document.getElementById('invite-active').textContent = stats.activeInvites || 0;
+                
+            } catch (error) {
+                console.error('Ошибка загрузки статистики инвайтов:', error);
+            }
+        }
+        
+        // Создание инвайта админом
+        async function createAdminInvite() {
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/invites/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ createdBy: 'admin' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Показываем код
+                    const display = document.getElementById('invite-code-display');
+                    const value = document.getElementById('invite-code-value');
+                    value.textContent = result.invite.code;
+                    display.style.display = 'flex';
+                    display.style.alignItems = 'center';
+                    
+                    // Обновляем статистику
+                    loadInviteStats();
+                    
+                    // Автоскрытие через 30 секунд
+                    setTimeout(() => {
+                        display.style.display = 'none';
+                    }, 30000);
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Не удалось создать инвайт'));
+                }
+                
+            } catch (error) {
+                alert('Ошибка соединения с сервером');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        // Копирование кода в буфер
+        function copyInviteCode() {
+            const code = document.getElementById('invite-code-value').textContent;
+            if (!code) return;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 1500);
+            }).catch(() => {
+                alert('Не удалось скопировать. Код: ' + code);
+            });
+        }
+        
         function startAutoRefresh() {
             setInterval(() => {
                 loadStats();
                 loadMasters();
+                loadInviteStats();
             }, 30000);
         }
         
-        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             loadStats();
             loadMasters();
+            loadInviteStats();
             startAutoRefresh();
             
-            // Добавляем кнопку экспорта
             const header = document.querySelector('.admin-header');
             const exportBtn = document.createElement('button');
             exportBtn.className = 'btn';

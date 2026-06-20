@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quickfix-v2';
+const CACHE_NAME = 'otdelkadrov-v1';
 const urlsToCache = [
     '/',
     '/index.html',

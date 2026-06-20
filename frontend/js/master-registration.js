@@ -1,5 +1,7 @@
 import { Validator, ValidationRules } from './validation.js'
 
+// Константы
+const API_URL = window.location.origin;
 
 export function initMasterRegistration() {
     console.log('Master Registration module initialized');
@@ -16,11 +18,195 @@ export function initMasterRegistration() {
         headerTop.appendChild(becomeMasterBtn);
     }
     
+    // Создаем модалку инвайта
+    createInviteModal();
     // Создаем модальное окно регистрации
     createRegistrationModal();
     
-    // Обработчик клика по кнопке
-    becomeMasterBtn.addEventListener('click', openRegistrationModal);
+    // Обработчик клика по кнопке — теперь открывает инвайт-модалку
+    becomeMasterBtn.addEventListener('click', openInviteModal);
+}
+
+// ===== МОДАЛКА ВВОДА ИНВАЙТ-КОДА =====
+
+function createInviteModal() {
+    const modalHTML = `
+    <div id="invite-modal" class="modal">
+        <div class="modal__content" style="max-width: 480px;">
+            <div class="modal__header">
+                <div class="modal__icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div>
+                    <h3 class="modal__title">Регистрация по приглашению</h3>
+                    <p class="modal__subtitle">Отдел Кадров — закрытое сообщество специалистов</p>
+                </div>
+            </div>
+            
+            <div class="invite-info" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2);">
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                    <i class="fas fa-info-circle" style="color: #8b5cf6; margin-right: 0.5rem;"></i>
+                    Зарегистрироваться могут только мастера, получившие инвайт-код
+                    от администратора или от уже зарегистрированного мастера.
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label for="invite-code-input">Введите инвайт-код</label>
+                <input type="text" id="invite-code-input" name="inviteCode"
+                       placeholder="Например: ABC123"
+                       class="modal__input"
+                       style="text-transform: uppercase; letter-spacing: 2px; font-size: 1.25rem; text-align: center;"
+                       maxlength="10"
+                       autocomplete="off">
+                <small class="form-hint">Код можно получить у администратора или знакомого мастера</small>
+            </div>
+            
+            <div id="invite-error" class="validation-error" style="display: none;"></div>
+            
+            <div class="modal__actions" style="flex-direction: column; gap: 0.75rem;">
+                <button id="verify-invite-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-check"></i>
+                    Проверить код
+                </button>
+                <button id="close-invite-modal" class="btn btn-close-modal" style="width: 100%;">
+                    Отмена
+                </button>
+            </div>
+            
+            <div class="invite-footer" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                    Нет кода?
+                    <a href="mailto:privacy@finderprofi.ru" style="color: #8b5cf6; text-decoration: none;">
+                        Напишите администратору
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Обработчики
+    const verifyBtn = document.getElementById('verify-invite-btn');
+    const closeBtn = document.getElementById('close-invite-modal');
+    const modal = document.getElementById('invite-modal');
+    const input = document.getElementById('invite-code-input');
+    
+    if (verifyBtn) {
+        verifyBtn.addEventListener('click', verifyInviteCode);
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeInviteModal);
+    }
+    
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeInviteModal();
+        });
+    }
+    
+    // Enter в поле кода
+    if (input) {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                verifyInviteCode();
+            }
+        });
+    }
+    
+    // Закрытие по Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeInviteModal();
+        }
+    });
+}
+
+// Открытие модалки инвайта
+function openInviteModal() {
+    const modal = document.getElementById('invite-modal');
+    const input = document.getElementById('invite-code-input');
+    const error = document.getElementById('invite-error');
+    
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        if (error) error.style.display = 'none';
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+    }
+}
+
+// Закрытие модалки инвайта
+function closeInviteModal() {
+    const modal = document.getElementById('invite-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+// Проверка инвайт-кода
+async function verifyInviteCode() {
+    const input = document.getElementById('invite-code-input');
+    const error = document.getElementById('invite-error');
+    const verifyBtn = document.getElementById('verify-invite-btn');
+    
+    if (!input || !error || !verifyBtn) return;
+    
+    const code = input.value.trim().toUpperCase();
+    
+    if (!code) {
+        error.textContent = '⚠️ Введите инвайт-код';
+        error.style.display = 'block';
+        input.classList.add('error');
+        return;
+    }
+    
+    // Блокируем кнопку
+    const originalText = verifyBtn.innerHTML;
+    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
+    verifyBtn.disabled = true;
+    error.style.display = 'none';
+    input.classList.remove('error');
+    
+    try {
+        const response = await fetch(`${API_URL}/api/invites/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        
+        const result = await response.json();
+        
+        if (result.valid) {
+            // Код верный — закрываем инвайт-модалку и открываем регистрацию
+            closeInviteModal();
+            // Сохраняем код для отправки в форме регистрации
+            window._pendingInviteCode = code;
+            openRegistrationModal();
+        } else {
+            error.textContent = '❌ ' + (result.error || 'Неверный код');
+            error.style.display = 'block';
+            input.classList.add('error');
+            input.focus();
+            input.select();
+        }
+        
+    } catch (err) {
+        console.error('Ошибка проверки кода:', err);
+        error.textContent = '❌ Ошибка соединения с сервером';
+        error.style.display = 'block';
+    } finally {
+        verifyBtn.innerHTML = originalText;
+        verifyBtn.disabled = false;
+    }
 }
 
 // Создание модального окна регистрации
@@ -445,6 +631,9 @@ async function handleRegistrationSubmit(event) {
             workType: workType,
             address: address,
             
+            // Инвайт-код (сохранён после проверки)
+            inviteCode: window._pendingInviteCode || '',
+            
             // Юридические согласия
             termsAgreement: formData.get('termsAgreement') === 'on',
             privacyAgreement: formData.get('privacyAgreement') === 'on',
@@ -493,7 +682,7 @@ async function handleRegistrationSubmit(event) {
         // Отправляем на сервер
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
         
-        const response = await fetch('http://localhost:3001/api/masters/register', {
+        const response = await fetch(`${API_URL}/api/masters/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(cleanData)
@@ -634,59 +823,126 @@ function showRegistrationSuccess(result) {
     
     const hasAddress = result.data && result.data.address;
     const isGeocoded = result.data && result.data.geocoded;
+    const masterId = result.data && result.data.id;
     
-    modalContent.innerHTML = `
-        <div class="registration-success">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>Вы в каталоге! 🎉</h3>
-            
-            ${isGeocoded ? 
-                '<p class="success-geocoded">✅ Адрес найден на карте!</p>' : 
-                hasAddress ? 
-                '<p class="warning">⚠️ Адрес не найден точно</p>' :
-                '<p>Выездной мастер</p>'
-            }
-            
-            <div class="success-details">
-                <div class="detail-item">
-                    <i class="fas fa-user"></i>
-                    <span><strong>${result.data.name}</strong></span>
+    // Создаём инвайт для нового мастера
+    createMasterInvite(masterId).then(inviteResult => {
+        const inviteCode = inviteResult.code || '';
+        const remaining = inviteResult.remaining !== undefined ? inviteResult.remaining : '—';
+        
+        modalContent.innerHTML = `
+            <div class="registration-success">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="detail-item">
-                    <i class="fas fa-phone"></i>
-                    <span>${formatPhone(result.data.phone)}</span>
-                </div>
-                ${hasAddress ? `
+                <h3>Вы в каталоге! 🎉</h3>
+                
+                ${isGeocoded ?
+                    '<p class="success-geocoded">✅ Адрес найден на карте!</p>' :
+                    hasAddress ?
+                    '<p class="warning">⚠️ Адрес не найден точно</p>' :
+                    '<p>Выездной мастер</p>'
+                }
+                
+                <div class="success-details">
                     <div class="detail-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>${result.data.address}</span>
+                        <i class="fas fa-user"></i>
+                        <span><strong>${result.data.name}</strong></span>
                     </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>${formatPhone(result.data.phone)}</span>
+                    </div>
+                    ${hasAddress ? `
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${result.data.address}</span>
+                        </div>
+                    ` : ''}
+                    <div class="detail-item">
+                        <i class="fas fa-tag"></i>
+                        <span>${result.data.price || 0}₽</span>
+                    </div>
+                </div>
+                
+                ${inviteCode ? `
+                <div class="invite-success-block" style="margin: 1.5rem 0; padding: 1.25rem; background: rgba(139, 92, 246, 0.1); border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <i class="fas fa-key" style="color: #8b5cf6; font-size: 1.25rem;"></i>
+                        <strong style="color: var(--text-primary);">Ваш инвайт-код</strong>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.2); padding: 0.75rem 1rem; border-radius: 8px;">
+                        <span id="master-invite-code" style="font-size: 1.5rem; font-weight: bold; letter-spacing: 3px; color: #c4b5fd; font-family: monospace; flex: 1;">${inviteCode}</span>
+                        <button onclick="copyMasterInviteCode()" style="background: rgba(139, 92, 246, 0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.75rem; margin-bottom: 0;">
+                        <i class="fas fa-info-circle"></i>
+                        Вы можете пригласить ещё <strong>${remaining}</strong> мастера(ов) на этой неделе
+                    </p>
+                </div>
                 ` : ''}
-                <div class="detail-item">
-                    <i class="fas fa-tag"></i>
-                    <span>${result.data.price || 0}₽</span>
+                
+                <div class="success-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Готово!</strong>
+                        <p>Теперь клиенты могут вас найти и позвонить</p>
+                    </div>
+                </div>
+                
+                <div class="success-actions">
+                    <button onclick="closeRegistrationModal()" class="btn btn-primary">
+                        <i class="fas fa-thumbs-up"></i>
+                        Супер!
+                    </button>
                 </div>
             </div>
-            
-            <div class="success-notice">
-                <i class="fas fa-info-circle"></i>
-                <div>
-                    <strong>Готово!</strong>
-                    <p>Теперь клиенты могут вас найти и позвонить</p>
-                </div>
-            </div>
-            
-            <div class="success-actions">
-                <button onclick="closeRegistrationModal()" class="btn btn-primary">
-                    <i class="fas fa-thumbs-up"></i>
-                    Супер!
-                </button>
-            </div>
-        </div>
-    `;
+        `;
+    });
 }
+
+// Создание инвайта для мастера
+async function createMasterInvite(masterId) {
+    if (!masterId) return { code: '' };
+    
+    try {
+        const response = await fetch(`${API_URL}/api/invites/master-create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ masterId })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            return { code: result.invite.code, remaining: result.remaining };
+        }
+        
+        return { code: '' };
+        
+    } catch (error) {
+        console.warn('Не удалось создать инвайт для мастера:', error);
+        return { code: '' };
+    }
+}
+
+// Копирование инвайт-кода мастера
+window.copyMasterInviteCode = function() {
+    const codeEl = document.getElementById('master-invite-code');
+    if (!codeEl) return;
+    
+    const code = codeEl.textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('#master-invite-code + button');
+        if (btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => { btn.innerHTML = original; }, 1500);
+        }
+    });
+};
 
 // Показ ошибки регистрации
 function showRegistrationError(message) {

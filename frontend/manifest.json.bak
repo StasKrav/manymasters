@@ -1,7 +1,7 @@
 {
-    "name": "QuickFix Perm",
-    "short_name": "QuickFix",
-    "description": "Быстрые услуги в Перми",
+    "name": "Отдел Кадров",
+    "short_name": "Отдел Кадров",
+    "description": "Проверенные специалисты в Перми",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0f172a",
